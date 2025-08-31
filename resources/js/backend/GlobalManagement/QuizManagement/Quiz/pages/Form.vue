@@ -40,7 +40,10 @@
                             <common-input :label="form_field.label" :type="form_field.type" :name="form_field.name"
                                 :multiple="form_field.multiple" :value="form_field.value"
                                 :data_list="form_field.data_list" :is_visible="form_field.is_visible"
-                                :row_col_class="form_field.row_col_class" 
+                                :row_col_class="form_field.row_col_class" :min="form_field.min" 
+                                :step="form_field.step"
+                                :readonly="getFieldReadonlyState(form_field)"
+                                :onchange="handleFieldChange"
                                 />
 
                         </template>
@@ -74,7 +77,8 @@
                                             borderRadius: selectedTopic && question.quiz_question_topic_id.id != selectedTopic ? '4px' : '0'
                                         }">
                                         <input type="checkbox" :value="question.id" v-model="selectedQuestions"
-                                            :id="'question-' + question.id" class="mr-2" />
+                                            :id="'question-' + question.id" class="mr-2" 
+                                            @change="updateTotalCalculations" />
                                         <label :for="'question-' + question.id" style="margin: 0; cursor: pointer;">
                                             <strong>{{ question.title }}</strong>
                                             <span
@@ -194,6 +198,11 @@ export default {
                 data: allQuestions,
                 total: allQuestions.length
             };
+            
+            // Update calculations if there are already selected questions
+            if (this.selectedQuestions.length > 0) {
+                this.updateTotalCalculations();
+            }
         },
         async fetchQuestions() {
             // Filter questions based on selected topic
@@ -254,10 +263,80 @@ export default {
             // Select all questions from current filtered results
             if (this.filteredQuestions.data) {
                 this.selectedQuestions = this.filteredQuestions.data.map(q => q.id);
+                this.updateTotalCalculations();
             }
         },
         deselectAllQuestions() {
             this.selectedQuestions = [];
+            this.updateTotalCalculations();
+        },
+        updateTotalCalculations() {
+            // Calculate total questions
+            const totalQuestions = this.selectedQuestions.length;
+            
+            // Calculate total marks by summing up marks of selected questions
+            let totalMarks = 0;
+            if (this.filteredQuestions.data) {
+                this.selectedQuestions.forEach(questionId => {
+                    // Find the question by ID from all available questions
+                    const question = this.findQuestionById(questionId);
+                    if (question && question.mark) {
+                        totalMarks += parseFloat(question.mark) || 0;
+                    }
+                });
+            }
+            
+            // Update form fields
+            this.updateFormFieldValue('total_question', totalQuestions);
+            this.updateFormFieldValue('total_mark', totalMarks.toFixed(2));
+        },
+        findQuestionById(questionId) {
+            // Search through all topics to find the question
+            for (const topic of this.topics) {
+                if (topic.quiz_question && Array.isArray(topic.quiz_question)) {
+                    const question = topic.quiz_question.find(q => q.id === questionId);
+                    if (question) {
+                        return question;
+                    }
+                }
+            }
+            return null;
+        },
+        updateFormFieldValue(fieldName, value) {
+            const fieldIndex = this.form_fields.findIndex(field => field.name === fieldName);
+            if (fieldIndex !== -1) {
+                this.form_fields[fieldIndex].value = value;
+            }
+        },
+        getFieldReadonlyState(field) {
+            // Handle readonly state for different fields
+            if (field.name === 'negative_value') {
+                // Make negative_value readonly if is_negative_marking is "0" (No)
+                const isNegativeMarkingField = this.form_fields.find(f => f.name === 'is_negative_marking');
+                const val = isNegativeMarkingField && isNegativeMarkingField.value !== null && isNegativeMarkingField.value !== undefined
+                    ? String(isNegativeMarkingField.value)
+                    : '';
+                // Readonly when negative marking is "No" (0) or when nothing is selected (empty)
+                return val === '' || val === '0';
+            }
+            
+            // Return the default readonly state for other fields
+            return field.readonly || false;
+        },
+        handleFieldChange(event) {
+            // Handle changes in form fields
+            const fieldName = event.target.name;
+            const fieldValue = event.target.value;
+            
+            // Update the form field value
+            this.updateFormFieldValue(fieldName, fieldValue);
+            
+            // If is_negative_marking changes, update negative_value field state
+            if (fieldName === 'is_negative_marking') {
+                if (fieldValue === '0') { // No negative marking
+                    this.updateFormFieldValue('negative_value', ''); // Clear the value
+                }
+            }
         },
         reset_fields: function () {
             this.form_fields.forEach((item) => {
@@ -282,6 +361,10 @@ export default {
                 // Set selected questions for edit
                 if (this.item.quiz_questions && Array.isArray(this.item.quiz_questions)) {
                     this.selectedQuestions = this.item.quiz_questions.map(q => q.id);
+                    // Recalculate totals after setting selected questions
+                    this.$nextTick(() => {
+                        this.updateTotalCalculations();
+                    });
                 }
             }
         },
@@ -343,6 +426,17 @@ export default {
                 }
             });
         },
+    },
+    watch: {
+        // Watch for changes in selectedQuestions to update calculations
+        selectedQuestions: {
+            handler: function(newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    this.updateTotalCalculations();
+                }
+            },
+            deep: true
+        }
     },
     computed: {
         ...mapState(store, {

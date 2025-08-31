@@ -1,8 +1,29 @@
+import { readonly } from "vue";
+
+const getMinDateTimeLocal = () => {
+  const d = new Date();
+  d.setSeconds(0, 0); // remove seconds for datetime-local input
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}`;
+};
+
+const minDateTime = getMinDateTimeLocal();
+
 export default [
   {
     name: "title",
     label: "Enter your title",
     type: "text",
+    value: "",
+  },
+  
+  {
+    name: "pass_mark",
+    label: "Enter your pass mark",
+    type: "number",
+    step: "1",
     value: "",
   },
 
@@ -11,6 +32,16 @@ export default [
     label: "Enter your total question",
     type: "number",
     value: "",
+    readonly: true,
+  },
+  
+  {
+    name: "total_mark",
+    label: "Enter your total mark",
+    type: "number",
+    step: "0.01",
+    value: "",
+    readonly: true,
   },
 
   {
@@ -18,6 +49,7 @@ export default [
     label: "Enter your exam start datetime",
     type: "datetime-local",
     value: "",
+    min: minDateTime,
   },
 
   {
@@ -25,29 +57,14 @@ export default [
     label: "Enter your exam end datetime",
     type: "datetime-local",
     value: "",
+    min: minDateTime,
   },
 
-  {
-    name: "total_mark",
-    label: "Enter your total mark",
-    type: "number",
-    step: "0.01",
-    value: "",
-  },
-
-  {
-    name: "pass_mark",
-    label: "Enter your pass mark",
-    type: "number",
-    step: "0.01",
-    value: "",
-  },
 
   {
     name: "is_negative_marking",
-    label: "Enter your is negative marking",
-    type: "select",
     label: "Select is negative marking",
+    type: "select",
     multiple: false,
     data_list: [
       {
@@ -73,7 +90,6 @@ export default [
     label: "Enter your description",
     type: "textarea",
     value: "",
-	row_col_class: "col-12",
+    row_col_class: "col-12",
   },
-
 ];
