@@ -11,6 +11,7 @@ class QuizQuestions
         try {
 
             $pageLimit = request()->input('limit') ?? 10;
+            $quiz_id = request()->input('quiz_id') ?? null;
             $orderByColumn = request()->input('sort_by_col') ?? 'id';
             $orderByType = request()->input('sort_type') ?? 'desc';
             $status = request()->input('status') ?? 'active';
@@ -29,22 +30,39 @@ class QuizQuestions
                 'slug'
             ];
 
-            $with = [
-                'quiz_questions:id,quiz_question_topic_id,title,question_level,mark,is_multiple,slug',
-                'quiz_questions.quiz_question_options:id,quiz_question_id,title,is_correct,image,slug',
-            ];
-
+            $with = [];
             $condition = [];
+
+            //if quiz_id is present in query param then it gets quiz_questions with options
+            if ($quiz_id) {
+                $with = [
+                    'quiz_questions:id,quiz_question_topic_id,title,question_level,mark,is_multiple,slug',
+                    'quiz_questions.quiz_question_options:id,quiz_question_id,title,is_correct,image,slug',
+                ];
+                $condition = [
+                    'id' => $quiz_id
+                ];
+            }
 
             $data = self::$model::query();
 
-            $data = $data
-                ->with($with)
-                ->select($fields)
-                ->where($condition)
-                ->where('status', $status)
-                ->orderBy($orderByColumn, $orderByType)
-                ->paginate($pageLimit);
+            if ($quiz_id) {
+                $data = $data
+                    ->with($with)
+                    ->select($fields)
+                    ->where($condition)
+                    ->where('status', $status)
+                    ->orderBy($orderByColumn, $orderByType)
+                    ->first();
+            } else {
+                $data = $data
+                    ->with($with)
+                    ->select($fields)
+                    ->where($condition)
+                    ->where('status', $status)
+                    ->orderBy($orderByColumn, $orderByType)
+                    ->paginate($pageLimit);
+            }
 
             return entityResponse([
                 ...$data->toArray(),
