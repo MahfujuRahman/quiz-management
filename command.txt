@@ -1,0 +1,175 @@
+
+/*
+|--------------------------------------------------------------------------
+| User Management
+|--------------------------------------------------------------------------
+*/    
+php artisan make:table UserManagement/User/UserAddress [user_id:bigint,phone_number:json,address:text,country:string-255,city:string-255,state:string-255,post:string-255] --model
+php artisan make:table UserManagement/User/UserSocialLink [user_id:bigint,media_name:string-100,link:string-100] --model
+php artisan make:table UserManagement/User/UserLog [user_id:bigint,last_seen:string-255,log_details:json] --model
+
+/*
+|--------------------------------------------------------------------------
+| Course
+|--------------------------------------------------------------------------
+*/ 
+php artisan make:module CourseManagement/CourseCategory [title:string-200] --vue
+php artisan make:table CourseManagement/CourseCategory/CourseCourseCategory [course_category_id:bigint,course_id:bigint] --model
+
+php artisan make:module CourseManagement/CourseInstructors [user_id:bigint{UserManagement/User},cover_photo:string-255,image:string-255,full_name:string-100,designation:string-100,short_description:text,description:longtext] --vue
+php artisan make:module CourseManagement/CourseCourseInstructor [instructor_id:bigint,course_id:bigint,batch_id:bigint]
+ 
+php artisan make:module CourseManagement/CourseBatch [course_id:bigint,batch_name:string-100,admission_start_date:datetime,admission_end_date:datetime,batch_student_limit:bigint,seat_booked:int,booked_percent:float,course_price:float,course_discount:float,after_discount_price:float,first_class_date:datetime,class_days:string-255,class_start_time:time,class_end_time:time,show_percentage_on_cards:enum-yes.no] --vue
+php artisan make:module CourseManagement/CourseBatchStudent [course_id:bigint,batch_id:bigint,student_id:bigint,course_percent:float,is_complete:enum-complete.incomplete] --vue
+
+php artisan make:module CourseManagement/Course [course_category_id:bigint,title:string-255,image:string-255,intro_video:string-255,published_at:date,is_published:boolean,what_is_this_course:text,why_is_this_course:text,type:enum-online.offline.daycare] --vue
+php artisan make:table CourseManagement/Course/CourseJobPosition [course_id:bigint,serial:tinyint,title:text] --model
+php artisan make:table CourseManagement/Course/CourseWhyYouLearnFromUs [course_id:bigint,title:text] --model
+php artisan make:table CourseManagement/Course/CourseFaq [course_id:bigint,title:text,description:text] --model
+php artisan make:table CourseManagement/Course/CourseOutcomeStep [course_id:bigint,serial:int,title:string-100] --model
+php artisan make:table CourseManagement/Course/CourseForWhom [course_id:bigint,title:text] --model
+php artisan make:table CourseManagement/Course/CourseJobWork [course_id:bigint,title:text] --model
+php artisan make:table CourseManagement/Course/CourseModuleAtAGlance [course_id:bigint,title:text] --model
+php artisan make:table CourseManagement/Course/CourseEssentialRequirement [course_id:bigint,title:text] --model
+php artisan make:table CourseManagement/Course/CourseWhatYouWillGet [course_id:bigint,title:text] --model
+
+php artisan make:module CourseManagement/CourseYouWillLearn [course_id:bigint,title:text]
+php artisan make:module CourseManagement/CourseHowIsStructured [course_id:bigint,serial:tinyint,title:text]
+php artisan make:module CourseManagement/CourseForWhom [course_id:bigint,title:text]
+php artisan make:module CourseManagement/Course/CourseWhyYouLearnFromUs [course_id:bigint,title:text]
+php artisan make:module CourseManagement/CourseFaq [course_id:bigint,title:text,description:text]
+
+php artisan make:module CourseManagement/CourseMilestone [course_id:bigint,milestone_no:bigint,title:string-200] --vue
+
+php artisan make:module CourseManagement/CourseModule [course_id:bigint,milestone_id:bigint,module_no:bigint,title:string-100] --vue
+
+php artisan make:module CourseManagement/CourseModuleClass [course_id:bigint,milestone_id:bigint,course_modules_id:bigint,class_no:string-20,title:text,type:enum-live.recorded,class_video_link:string-150,class_video_poster:string-100] --vue
+php artisan make:module CourseManagement/CourseModuleClassQuiz [course_id:bigint,milestone_id:bigint,course_module_id:bigint,course_module_class_id:bigint,quiz_id:bigint]
+php artisan make:table CourseManagement/CourseModuleClass/CourseModuleTaskCompleteByUser [course_id:bigint,module_id:bigint,class_id:bigint,user_id:bigint,content_id:bigint,quiz_id:bigint,exam_id:bigint] --model
+
+php artisan make:module CourseManagement/CourseModuleClassResourse [course_id:bigint,course_module_class_id:bigint,course_module_id:bigint,resourse_content:text,resourse_link:string-100] --vue
+ 
+php artisan make:module CourseManagement/CourseModuleClassRoutine [course_id:bigint,module_id:bigint,class_id:bigint,date:date,time:time,topic:text] --vue
+
+/*
+|--------------------------------------------------------------------------
+| Quiz
+|---------- ----------------------------------------------------------------
+*/  
+php artisan make:module QuizManagement/QuizQuestionTopic [title:string-200] --vue
+
+php artisan make:module QuizManagement/QuizQuestion [quiz_question_topic_id:bigint{QuizManagement/QuizQuestionTopic},title:string-255,question_level:enum-easy.medium.hard,mark:float,is_multiple:boolean,session_year:string-20] --vue
+php artisan make:table QuizManagement/QuizQuestion/QuizQuestionOption [quiz_question_id:bigint,title:string-255,is_correct:boolean,image:string-255] --model
+
+php artisan make:module QuizManagement/Quiz [title:string-255,description:text,total_question:int,exam_start_datetime:datetime,exam_end_datetime:datetime,total_mark:float,pass_mark:float,is_negative_marking:boolean,negative_value:float] --vue
+php artisan make:table QuizManagement/Quiz/QuizQuizQuestion [quiz_id:bigint,quiz_question_id:bigint] --model
+php artisan make:table QuizManagement/Quiz/QuizSubmission [user_id:bigint,quiz_id:bigint,quiz_question_id:bigint,quiz_question_option_id:json,course_module_class_id:bigint,is_correct:boolean] --model
+php artisan make:module QuizManagement/QuizSubmissionResult [user_id:bigint,quiz_id:bigint{QuizManagement/Quiz},submission_no:tinyint,course_module_class_id:bigint{CourseManagement/CourseModuleClass},quiz_mark:float,obtain_mark:float,submission_datetime:datetime] --vue
+
+/*
+|--------------------------------------------------------------------------
+| WebsiteContent
+|--------------------------------------------------------------------------
+*/  
+php artisan make:module WebsiteManagement/WebsiteBanner [title:string-255,subtitle:text,is_featured:boolean,image:file,btn_one_text:string-50,btn_one_url:string-255,btn_two_text:string-50,btn_two_url:string-255] --vue
+php artisan make:module WebsiteManagement/SubBanner [title:string-255,image:file] --vue
+php artisan make:module WebsiteManagement/OurSpeciality [title:string-255,image:file] --vue
+php artisan make:module WebsiteManagement/SuccssStories [title:string-255,thumbnail_image:file,video_link:string-255] --vue
+php artisan make:module WebsiteManagement/OurTrainer [title:string-255,description:text,image:file] --vue
+
+php artisan make:module WebsiteManagement/AboutUs [title:string-255,description:text,image:string-255] --vue
+php artisan make:module WebsiteManagement/WebsiteBrand [title:string-255,image:file] --vue
+php artisan make:module WebsiteManagement/OurMoto [title:string-255,description:text,image:string-255] --vue
+php artisan make:module WebsiteManagement/OurMission [title:string-255,description:text,image:string-255] --vue
+php artisan make:module WebsiteManagement/OurVision [title:string-255,description:text,image:string-255] --vue
+php artisan make:module WebsiteManagement/OurTeam [title:string-255,description:text] --vue
+
+php artisan make:module WebsiteManagement/Faq [title:string-255,description:text] --vue
+php artisan make:module WebsiteManagement/PrivacyPolicy [title:string-255,description:text] --vue
+php artisan make:module WebsiteManagement/RefundPolicy [title:string-255,description:text] --vue
+php artisan make:module WebsiteManagement/CookiePolicy [title:string-255,description:text] --vue
+php artisan make:module WebsiteManagement/TermConditionPolicy [title:string-255,description:text] --vue
+
+
+/*
+|--------------------------------------------------------------------------
+| Blog Page 
+|--------------------------------------------------------------------------
+*/  
+php artisan make:module BlogManagement/BlogCategory [title:string-100,description:text] --vue
+php artisan make:table BlogManagement/BlogCategory/BlogBlogCategory [blog_id:bigint,blog_category_id:bigint] --model
+
+php artisan make:module BlogManagement/Blog [blog_category_id:bigint{BlogManagement/BlogCategory},title:string-100,description:text,tags:text,publish_date:datetime,writer:bigint{BlogManagement/BlogWriter},thumbnail_image:string-100,images:text,blog_type:string-100,url:string-100,show_top:string-100,contributors:json,is_featured:boolean,is_published:boolean] --vue
+php artisan make:table BlogManagement/Blog/BlogMeta [blog_id:bigint,title:string-150,description:longtext,keywords:string-150,image:string-100,image_alter_text:string-150,image_title:string-150] --model
+php artisan make:table BlogManagement/Blog/BlogComment [blog_id:bigint,user_id:bigint,comment:text] --model
+php artisan make:table BlogManagement/Blog/BlogCommentReply [blog_comment_id:bigint,comment:json,user_id:bigint] --model
+php artisan make:table BlogManagement/Blog/BlogCommentBlogCommentReply [blog_comment_id:bigint,blog_comment_reply_id:bigint] --model
+php artisan make:table BlogManagement/Blog/BlogVideoLink [blog_id:bigint,video_link:string-50] --model
+php artisan make:table BlogManagement/Blog/BlogView [blog_id:bigint,user_id:bigint,ip:string-100] --model
+
+php artisan make:module BlogManagement/BlogWriter [name:string-100] --vue
+php artisan make:module BlogManagement/BlogTag [title:string-150] --vue
+
+/*
+|--------------------------------------------------------------------------
+| Gallery Management
+|--------------------------------------------------------------------------
+*/  
+php artisan make:module GalleryManagement/GalleryCategory [title:string-255,description:text] --vue
+php artisan make:module GalleryManagement/Gallery [gallery_category_id:bigint{GalleryManagement/GalleryCategory},title:string-255,description:text,image:string-255,top_image:boolean] --vue
+
+/*
+|--------------------------------------------------------------------------
+| EnrollInformation
+|--------------------------------------------------------------------------
+*/ 
+php artisan make:module EnrollInformation [course_id:bigint,student_id:bigint,batch_id:bigint,payment_type:enum-offline.online,payment_by:string-50,receipt_id:string-255,trx_id:string-255,payment_status:enum-paid.unpaid.failed,total_amount:float,paid_amount:float] --vue
+
+/*
+|--------------------------------------------------------------------------
+| PaymentGateways
+|--------------------------------------------------------------------------
+*/ 
+php artisan make:module PaymentGateways [provider_name:enum-bkash.nagad.sslcommerze,api_key:string-255,secret_key:string-255,username:string-255,password:string-255,live:boolean] --vue
+
+/*
+|--------------------------------------------------------------------------
+| EmailConfigures
+|--------------------------------------------------------------------------
+*/ 
+php artisan make:module EmailConfigures [host:string-255,port:int,email:string-255,username:string-255,password:string-255,mail_from_name:string-255,mail_from_email:string-255,encryption:boolean] --vue
+
+/*
+|--------------------------------------------------------------------------
+| Seminer Management
+|--------------------------------------------------------------------------
+*/   
+php artisan make:module SeminerManagement/Seminer [title:string-255,description:text,poster:file,whatsapp_group:stringo-255,facebook_group:string-255,telegram_group:string-255,date_time:datetime,promo_video:text] --vue
+php artisan make:module SeminerManagement/SeminerParticipant [seminar_id:bigint{SeminerManagement/Seminer},full_name:string-255,email:string-255,phone_number:string-20,address:string-255] --vue
+php artisan make:module SeminerManagement/SeminerSubscribers [seminar_id:bigint{SeminerManagement/Seminer},email:string-255] --vue
+php artisan make:module SeminerManagement/SeminerReviews [seminar_id:bigint{SeminerManagement/Seminer},comment:string-255,rating:float,comment_reply:json] --vue
+
+
+/*
+|--------------------------------------------------------------------------
+| Communication Messages
+|--------------------------------------------------------------------------
+*/  
+//need deafult value 0 in is_seen
+php artisan make:module CommunicationManagement/ContactMessage [full_name:string-100,email:string-100,subject:string-255,message:text,is_seen:boolean] --vue
+php artisan make:module CommunicationManagement/Subscriber [email:string-255] --vue
+
+
+
+
+php artisan make:table UserManagement/User/StudentDetails [user_id:bigint,father_name:string-100,mother_name:string-100,gender:enum-Male.Female.Other,guardian_number:string:20,blood_group:enum-A+.A-.B+.B-.AB+.AB-.O+.O-,occupation:string-100,designation:string-100,organization:string-100,institution:string-100,class:string-100,last_certificate_name:string-100,reference_source:string-100] --model
+
+                                                                                                                                                                                            
+
+
+
+
+
+
+
+

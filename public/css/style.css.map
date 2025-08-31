@@ -1,0 +1,1 @@
+{"version":3,"file":"css/style.css","mappings":"AAEA;EACI;AADJ,C","sources":["webpack:///./resources/scss/style.scss"],"sourcesContent":["// backend css\n\n.test {\n    margin: 100px;\n}\n"],"names":[],"sourceRoot":""}

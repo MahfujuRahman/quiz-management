@@ -1,0 +1,110 @@
+.group {
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 1px solid white;
+  position: relative;
+}
+.group::after {
+  content: "";
+  width: 20px;
+  height: 1px;
+  background-color: white;
+  left: -21px;
+  top: 0px;
+  position: absolute;
+}
+.group.modules .title,
+.group.classes .title,
+.group.milestones .title {
+  position: relative;
+  padding-left: 15px;
+  display: flex;
+  gap: 40px;
+  justify-content: space-between;
+}
+.group.modules .title::after,
+.group.classes .title::after,
+.group.milestones .title::after {
+  content: "";
+  width: 20px;
+  height: 1px;
+  background-color: white;
+  left: -20px;
+  top: 13px;
+  position: absolute;
+}
+.group.modules .title .heading,
+.group.classes .title .heading,
+.group.milestones .title .heading {
+  margin-bottom: 20px;
+}
+.group.modules .form_group,
+.group.classes .form_group,
+.group.milestones .form_group {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+.group.modules .form_group label,
+.group.classes .form_group label,
+.group.milestones .form_group label {
+  width: 80px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+.group.modules .form_group .input,
+.group.classes .form_group .input,
+.group.milestones .form_group .input {
+  flex: 1;
+}
+.group.milestones {
+  border-left-color: yellow;
+}
+.group.milestones::after {
+  background-color: transparent;
+}
+.group.modules {
+  padding-left: 20px;
+  margin-bottom: 30px;
+  border-left-color: #26bce6;
+}
+.group.modules::after {
+  background-color: #26bce6;
+}
+.group.modules .title::after {
+  background-color: #26bce6;
+}
+.group.modules.group {
+  padding-right: 0;
+}
+.group.modules .top {
+  padding-bottom: 30px;
+}
+.group.classes {
+  padding-left: 20px;
+  margin-bottom: 60px;
+  border-left-color: #e626dc;
+}
+.group.classes::after {
+  background-color: #e626dc;
+}
+.group.classes .title::after {
+  background-color: #e626dc;
+}
+.group.classes.group {
+  padding-right: 0;
+  padding-bottom: 0;
+}
+.promo-iframe {
+  height: 60px;
+  width: 90px;
+  display: block;
+}
+.promo-iframe iframe,
+.promo-iframe img {
+  width: 100% !important;
+  height: 100% !important;
+}
