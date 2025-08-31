@@ -4,7 +4,9 @@ use App\Modules\Management\QuizManagement\Quiz\Controller\Controller;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
+// Route::prefix('v1')->middleware('auth:api')->group(function () {
     Route::prefix('quizzes')->group(function () {
+        Route::get('quiz_questions', [Controller::class,'quiz_questions']);
         Route::get('', [Controller::class,'index']);
         Route::get('{slug}', [Controller::class,'show']);
         Route::post('store', [Controller::class,'store']);

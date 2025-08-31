@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Modules\Management\QuizManagement\Quiz\Controller;
+
 use App\Modules\Management\QuizManagement\Quiz\Actions\GetAllData;
 use App\Modules\Management\QuizManagement\Quiz\Actions\DestroyData;
 use App\Modules\Management\QuizManagement\Quiz\Actions\GetSingleData;
@@ -13,13 +14,15 @@ use App\Modules\Management\QuizManagement\Quiz\Actions\ImportData;
 use App\Modules\Management\QuizManagement\Quiz\Validations\BulkActionsValidation;
 use App\Modules\Management\QuizManagement\Quiz\Validations\DataStoreValidation;
 use App\Modules\Management\QuizManagement\Quiz\Actions\BulkActions;
+use App\Modules\Management\QuizManagement\Quiz\Actions\QuizQuestions;
 use App\Http\Controllers\Controller as ControllersController;
 
 
 class Controller extends ControllersController
 {
 
-    public function index( ){
+    public function index()
+    {
 
         $data = GetAllData::execute();
         return $data;
@@ -42,7 +45,7 @@ class Controller extends ControllersController
         $data = UpdateData::execute($request, $slug);
         return $data;
     }
-         public function updateStatus()
+    public function updateStatus()
     {
         $data = UpdateStatus::execute();
         return $data;
@@ -74,4 +77,9 @@ class Controller extends ControllersController
         return $data;
     }
 
+    public function quiz_questions()
+    {
+        $data = QuizQuestions::execute();
+        return $data;
+    }
 }

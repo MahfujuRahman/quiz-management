@@ -126,8 +126,8 @@
                                         v-else
                                         type="radio"
                                         name="is_correct_option"
-                                        v-model="option.is_correct"
-                                        :value="true"
+                                        :value="idx"
+                                        :checked="option.is_correct"
                                         :id="'is_correct_option_' + idx"
                                         @change="handleCorrectOptionChange(idx)"
                                         @click="console.log('Clicked radio', idx, 'current value:', option.is_correct, 'will become:', true)"
@@ -326,9 +326,13 @@ import QuizQuestionTopicDropDownEl from "../../QuizQuestionTopic/components/drop
             console.log('is_multiple value:', this.formData.is_multiple);
             
             // For single selection (radio buttons), ensure only one is selected
-            if (this.formData.is_multiple === '0' || this.formData.is_multiple === 0 || this.formData.is_multiple === false) {
-                this.setCorrectOption(idx);
+            if (this.formData.is_multiple === '0' || this.formData.is_multiple === 0 || this.formData.is_multiple === false || this.formData.is_multiple === '') {
+                // Reset all options to false first
+                this.quizOptions.forEach(opt => opt.is_correct = false);
+                // Then set the clicked option to true
+                this.quizOptions[idx].is_correct = true;
             }
+            // For multiple selection (checkboxes), the v-model handles the toggle automatically
             
             // Log the state after change
             setTimeout(() => {
@@ -369,6 +373,31 @@ import QuizQuestionTopicDropDownEl from "../../QuizQuestionTopic/components/drop
                 }
             });
         },
+    },
+
+    watch: {
+        // Watch for changes in is_multiple to handle selection mode changes
+        'formData.is_multiple': function(newVal, oldVal) {
+            console.log('is_multiple changed from', oldVal, 'to', newVal);
+            
+            // If switching from multiple (1) to single (0)
+            if ((oldVal === '1' || oldVal === 1) && (newVal === '0' || newVal === 0)) {
+                // Find the first selected option and keep only that one
+                const firstSelectedIndex = this.quizOptions.findIndex(opt => opt.is_correct === true);
+                
+                // Reset all options to false
+                this.quizOptions.forEach(opt => opt.is_correct = false);
+                
+                // If there was a selected option, keep the first one selected
+                if (firstSelectedIndex !== -1) {
+                    this.quizOptions[firstSelectedIndex].is_correct = true;
+                }
+                
+                console.log('Switched to single selection, options state:', this.quizOptions.map((opt, i) => ({idx: i, is_correct: opt.is_correct})));
+            }
+            // If switching from single (0) to multiple (1), no action needed
+            // The currently selected option will remain selected and users can select additional ones
+        }
     },
 
     computed: {

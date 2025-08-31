@@ -22,7 +22,7 @@ class UpdateData
             // Remove quiz_questions from main data to avoid column error
             $quizQuestions = $requestData['quiz_questions'] ?? [];
             unset($requestData['quiz_questions']);
-            
+
             // Update main quiz data
             $data->update($requestData);
             
