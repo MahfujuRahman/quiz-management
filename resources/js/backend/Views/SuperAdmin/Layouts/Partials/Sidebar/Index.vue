@@ -13,40 +13,21 @@
 
     <div class="text-center mt-3">
       <img class="rounded-circle p-1" height="70" width="70" :src="`${auth_info.image ?? 'avatar.png'}`" alt="" />
-      <p class="mt-2">Mr. {{ auth_info.name }}</p>
+      <p class="mt-2">Mr. {{ auth_info.first_name }}  {{ auth_info.last_name }}</p>
     </div>
     <hr />
     <ul class="metismenu" id="menu">
       <side-bar-single-menu :icon="`zmdi zmdi-view-dashboard`" :menu_title="`Dashboard`"
         :route_name="`adminDashboard`" />
       <!-- Management start -->
-      <side-bar-drop-down-menus :icon="`fa fa-plus`" :menu_title="`User Management`" :menus="[
-        {
-          route_name: `AllUser`,
-          title: `User`,
-          icon: `zmdi zmdi-dot-circle-alt`,
-        },
-      ]" />
+        <side-bar-single-menu :icon="`zmdi zmdi-account`" :menu_title="`User Management`"
+        :route_name="`AllUser`" />
+     
       
-      <side-bar-drop-down-menus :icon="`fa fa-plus`" :menu_title="`QuizManagement`" :menus="[
-        {
-          route_name: `AllQuizQuestionTopic`,
-          title: `Quiz Topic`,
-          icon: `zmdi zmdi-dot-circle-alt`,
-        }, {
-          route_name: `AllQuizQuestion`,
-          title: `Quiz Question`,
-          icon: `zmdi zmdi-dot-circle-alt`,
-        }, {
-          route_name: `AllQuiz`,
-          title: `All Quiz`,
-          icon: `zmdi zmdi-dot-circle-alt`,
-        }, {
-          route_name: `AllQuizSubmissionResult`,
-          title: `Quiz Submission Result`,
-          icon: `zmdi zmdi-dot-circle-alt`,
-        },
-      ]" />
+      <side-bar-single-menu :icon="`zmdi zmdi-label`" :menu_title="`Quiz Topic`" :route_name="`AllQuizQuestionTopic`" />
+      <side-bar-single-menu :icon="`zmdi zmdi-edit`" :menu_title="`Quiz Question`" :route_name="`AllQuizQuestion`" />
+      <side-bar-single-menu :icon="`zmdi zmdi-collection-text`" :menu_title="`All Quiz`" :route_name="`AllQuiz`" />
+      <side-bar-single-menu :icon="`zmdi zmdi-chart`" :menu_title="`Quiz Result`" :route_name="`AllQuizSubmissionResult`" />
 
       <!-- Management end -->
     </ul>
