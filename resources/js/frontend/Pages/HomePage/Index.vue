@@ -4,101 +4,13 @@
         <section class="hero-section bg-gradient-primary py-5">
             <div class="container">
                 <div class="row align-items-center">
-                    <div class="col-lg-6">
+                    <div class="col-lg-12 text-center">
                         <h1 class="display-4 font-weight-bold text-white mb-4">
                             অনলাইন পরীক্ষা সিস্টেম
                         </h1>
                         <p class="lead text-white mb-4">
                             যেকোনো সময়, যেকোনো জায়গা থেকে নিরাপদ ও স্বচ্ছ পরীক্ষায় অংশগ্রহণ করুন
                         </p>
-                    </div>
-                    <div class="col-lg-6">
-                        <img src="/frontend/assets/images/quiz-hero.png" alt="Quiz System" class="img-fluid">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Available Quizzes Section -->
-        <section class="py-5">
-            <div class="container">
-                <h2 class="text-center mb-5">সক্রিয় পরীক্ষাসমূহ</h2>
-                
-                <div class="row" v-if="loading">
-                    <div class="col-12 text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="sr-only">লোড হচ্ছে...</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" v-else-if="quizzes.length > 0">
-                    <div class="col-lg-4 col-md-6 mb-4" v-for="quiz in quizzes" :key="quiz.id">
-                        <div class="card h-100 shadow quiz-card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0">{{ quiz.title }}</h5>
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text" v-if="quiz.description">{{ quiz.description }}</p>
-                                
-                                <div class="quiz-info">
-                                    <small class="text-muted d-block mb-2">
-                                        <i class="fas fa-clock"></i> 
-                                        শুরু: {{ formatDateTime(quiz.exam_start_datetime) }}
-                                    </small>
-                                    <small class="text-muted d-block mb-2">
-                                        <i class="fas fa-clock-o"></i> 
-                                        শেষ: {{ formatDateTime(quiz.exam_end_datetime) }}
-                                    </small>
-                                    <small class="text-muted d-block mb-2">
-                                        <i class="fas fa-question-circle"></i> 
-                                        প্রশ্ন সংখ্যা: {{ quiz.total_question }}
-                                    </small>
-                                    <small class="text-muted d-block mb-3">
-                                        <i class="fas fa-star"></i> 
-                                        পূর্ণমান: {{ quiz.total_mark }}
-                                    </small>
-                                </div>
-
-                                <div class="quiz-status mb-3">
-                                    <span v-if="getQuizStatus(quiz) === 'upcoming'" class="badge badge-warning">
-                                        <i class="fas fa-hourglass-start"></i> শীঘ্রই শুরু
-                                    </span>
-                                    <span v-else-if="getQuizStatus(quiz) === 'ongoing'" class="badge badge-success">
-                                        <i class="fas fa-play-circle"></i> চলমান
-                                    </span>
-                                    <span v-else-if="getQuizStatus(quiz) === 'ended'" class="badge badge-danger">
-                                        <i class="fas fa-stop-circle"></i> সমাপ্ত
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <button 
-                                    v-if="getQuizStatus(quiz) === 'ongoing'" 
-                                    @click="joinQuiz(quiz)"
-                                    class="btn btn-success btn-block">
-                                    <i class="fas fa-play"></i> পরীক্ষায় অংশগ্রহণ করুন
-                                </button>
-                                <button 
-                                    v-else-if="getQuizStatus(quiz) === 'upcoming'"
-                                    class="btn btn-warning btn-block" disabled>
-                                    <i class="fas fa-clock"></i> {{ getCountdown(quiz.exam_start_datetime) }}
-                                </button>
-                                <button 
-                                    v-else
-                                    class="btn btn-secondary btn-block" disabled>
-                                    <i class="fas fa-times"></i> পরীক্ষা সমাপ্ত
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" v-else>
-                    <div class="col-12 text-center">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> বর্তমানে কোনো সক্রিয় পরীক্ষা নেই।
-                        </div>
                     </div>
                 </div>
             </div>
@@ -116,16 +28,10 @@
                                     আপনার কাছে পরীক্ষার লিংক আছে? এখানে প্রবেশ করুন
                                 </p>
                                 <div class="input-group mb-3">
-                                    <input 
-                                        type="text" 
-                                        class="form-control" 
-                                        placeholder="পরীক্ষার কোড বা ID লিখুন"
-                                        v-model="directQuizId"
-                                    >
+                                    <input type="text" class="form-control" placeholder="পরীক্ষার কোড বা ID লিখুন"
+                                        v-model="directQuizId">
                                     <div class="input-group-append">
-                                        <button 
-                                            @click="joinDirectQuiz" 
-                                            class="btn btn-primary"
+                                        <button @click="joinDirectQuiz" class="btn btn-primary"
                                             :disabled="!directQuizId.trim()">
                                             <i class="fas fa-arrow-right"></i> যান
                                         </button>
@@ -137,11 +43,94 @@
                 </div>
             </div>
         </section>
+
+        <!-- Available Quizzes Section -->
+        <section class="py-5">
+            <div class="container">
+                <h2 class="text-center mb-5">সক্রিয় পরীক্ষাসমূহ</h2>
+
+                <div class="row" v-if="loading">
+                    <div class="col-12 text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">লোড হচ্ছে...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" v-else-if="quizzes.length > 0">
+                    <div class="col-lg-4 col-md-6 mb-4" v-for="quiz in quizzes" :key="quiz.id">
+                        <div class="card h-100 shadow quiz-card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">{{ quiz.title }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text" v-if="quiz.description">{{ quiz.description }}</p>
+
+                                <div class="quiz-info">
+                                    <small class="text-muted d-block mb-2">
+                                        <i class="fas fa-clock"></i>
+                                        শুরু: {{ formatDateTime(quiz.exam_start_datetime) }}
+                                    </small>
+                                    <small class="text-muted d-block mb-2">
+                                        <i class="fas fa-clock-o"></i>
+                                        শেষ: {{ formatDateTime(quiz.exam_end_datetime) }}
+                                    </small>
+                                    <small class="text-muted d-block mb-2">
+                                        <i class="fas fa-question-circle"></i>
+                                        প্রশ্ন সংখ্যা: {{ quiz.total_question }}
+                                    </small>
+                                    <small class="text-muted d-block mb-3">
+                                        <i class="fas fa-star"></i>
+                                        পূর্ণমান: {{ quiz.total_mark }}
+                                    </small>
+                                </div>
+
+                                <div class="quiz-status mb-3">
+                                    <span v-if="getQuizStatus(quiz) === 'upcoming'" class="badge badge-warning">
+                                        <i class="fas fa-hourglass-start"></i> শীঘ্রই শুরু
+                                    </span>
+                                    <span v-else-if="getQuizStatus(quiz) === 'ongoing'" class="badge badge-success">
+                                        <i class="fas fa-play-circle"></i> চলমান
+                                    </span>
+                                    <span v-else-if="getQuizStatus(quiz) === 'ended'" class="badge badge-danger">
+                                        <i class="fas fa-stop-circle"></i> সমাপ্ত
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button v-if="getQuizStatus(quiz) === 'ongoing'" @click="joinQuiz(quiz)"
+                                    class="btn btn-success btn-block">
+                                    <i class="fas fa-play"></i> পরীক্ষায় অংশগ্রহণ করুন
+                                </button>
+                                <button v-else-if="getQuizStatus(quiz) === 'upcoming'" class="btn btn-warning btn-block"
+                                    disabled>
+                                    <i class="fas fa-clock"></i> {{ getCountdown(quiz.exam_start_datetime) }}
+                                </button>
+                                <button v-else class="btn btn-secondary btn-block" disabled>
+                                    <i class="fas fa-times"></i> পরীক্ষা সমাপ্ত
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" v-else>
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> বর্তমানে কোনো সক্রিয় পরীক্ষা নেই।
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
     </div>
 </template>
 
 <script>
 import moment from 'moment';
+import axios from 'axios';
 
 export default {
     data() {
@@ -152,45 +141,44 @@ export default {
             countdownIntervals: {}
         }
     },
-    
+
     async created() {
         await this.fetchQuizzes();
         this.startCountdownUpdates();
     },
-    
+
     beforeUnmount() {
         // Clear all intervals
         Object.values(this.countdownIntervals).forEach(interval => {
             clearInterval(interval);
         });
     },
-    
+
     methods: {
         async fetchQuizzes() {
             try {
                 this.loading = true;
-                const response = await fetch('/api/v1/public-quizzes');
-                if (response.ok) {
-                    const data = await response.json();
-                    this.quizzes = data.data || [];
+                const response = await axios.get('/public-quizzes');
+                if (response.status === 200) {
+                    this.quizzes = response.data.data || [];
                 }
             } catch (error) {
                 console.error('Error fetching quizzes:', error);
-                this.$toast.error('পরীক্ষার তালিকা লোড করতে সমস্যা হয়েছে');
+                window.s_error('পরীক্ষার তালিকা লোড করতে সমস্যা হয়েছে');
             } finally {
                 this.loading = false;
             }
         },
-        
+
         formatDateTime(datetime) {
             return moment(datetime).format('DD/MM/YYYY hh:mm A');
         },
-        
+
         getQuizStatus(quiz) {
             const now = moment();
             const startTime = moment(quiz.exam_start_datetime);
             const endTime = moment(quiz.exam_end_datetime);
-            
+
             if (now.isBefore(startTime)) {
                 return 'upcoming';
             } else if (now.isAfter(endTime)) {
@@ -199,21 +187,21 @@ export default {
                 return 'ongoing';
             }
         },
-        
+
         getCountdown(startDateTime) {
             const now = moment();
             const startTime = moment(startDateTime);
             const duration = moment.duration(startTime.diff(now));
-            
+
             if (duration.asMilliseconds() <= 0) {
                 return 'শুরু হয়েছে';
             }
-            
+
             const days = Math.floor(duration.asDays());
             const hours = duration.hours();
             const minutes = duration.minutes();
             const seconds = duration.seconds();
-            
+
             if (days > 0) {
                 return `${days} দিন ${hours} ঘন্টা`;
             } else if (hours > 0) {
@@ -224,39 +212,38 @@ export default {
                 return `${seconds} সেকেন্ড`;
             }
         },
-        
+
         startCountdownUpdates() {
             // Update countdowns every second
             setInterval(() => {
                 this.$forceUpdate();
             }, 1000);
         },
-        
+
         joinQuiz(quiz) {
             // Store quiz info and redirect to registration
             localStorage.setItem('selectedQuiz', JSON.stringify(quiz));
-            this.$router.push(`/quiz/${quiz.id}/register`);
+            this.$inertia.visit(`/quiz-register`);
         },
-        
+
         async joinDirectQuiz() {
             if (!this.directQuizId.trim()) return;
-            
+
             try {
                 // Validate quiz ID
-                const response = await fetch(`/api/v1/quiz/${this.directQuizId}/validate`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        this.joinQuiz(data.quiz);
-                    } else {
-                        this.$toast.error('অবৈধ পরীক্ষার কোড');
-                    }
+                const response = await axios.post('/public-quizzes/validate-code', {
+                    quiz: this.directQuizId
+                });
+                console.log(response);
+                if (response.data.statusCode == 200) {
+                    const data = await response.data.data;
+                    this.joinQuiz(data.quiz);
                 } else {
-                    this.$toast.error('পরীক্ষা খুঁজে পাওয়া যায়নি');
+                    window.s_error('পরীক্ষা খুঁজে পাওয়া যায়নি');
                 }
             } catch (error) {
                 console.error('Error validating quiz:', error);
-                this.$toast.error('সংযোগে সমস্যা হয়েছে');
+                window.s_error('সংযোগে সমস্যা হয়েছে');
             }
         }
     }
@@ -266,7 +253,7 @@ export default {
 <style scoped>
 .hero-section {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 500px;
+    /* min-height: 500px; */
 }
 
 .quiz-card {
@@ -339,11 +326,11 @@ export default {
         text-align: center;
         padding: 3rem 0;
     }
-    
+
     .display-4 {
         font-size: 2rem;
     }
-    
+
     .quiz-card {
         margin-bottom: 2rem;
     }
@@ -359,6 +346,7 @@ export default {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -401,4 +389,3 @@ export default {
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
 }
 </style>
-
