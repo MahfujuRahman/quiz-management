@@ -37,7 +37,8 @@
                         </div>
                         <div class="col-md-4 text-right">
                             <!-- Timer -->
-                            <div class="timer" :class="{ 'timer-warning': isWarningTime, 'timer-critical': isCriticalTime }">
+                            <div class="timer"
+                                :class="{ 'timer-warning': isWarningTime, 'timer-critical': isCriticalTime }">
                                 <i class="fas fa-clock"></i>
                                 {{ formatTime(remainingTime) }}
                             </div>
@@ -56,32 +57,26 @@
                                     <span class="question-number">প্রশ্ন {{ currentQuestionIndex + 1 }}</span>
                                     <span class="question-marks">নম্বর: {{ currentQuestion.mark }}</span>
                                 </div>
-                                
+
                                 <div class="question-content">
                                     <h4 v-html="currentQuestion.title"></h4>
                                 </div>
-                                
+
                                 <!-- Options -->
                                 <div class="options-container">
-                                    <div 
-                                        v-for="option in currentQuestion.quiz_question_options" 
-                                        :key="option.id"
-                                        class="option-item"
-                                        :class="{ 'selected': isOptionSelected(option.id) }"
-                                        @click="selectOption(option.id)"
-                                    >
+                                    <div v-for="option in currentQuestion.quiz_question_options" :key="option.id"
+                                        class="option-item" :class="{ 'selected': isOptionSelected(option.id) }"
+                                        @click="selectOption(option.id)">
                                         <div class="option-radio">
-                                            <input 
-                                                :type="currentQuestion.is_multiple ? 'checkbox' : 'radio'"
-                                                :name="'question_' + currentQuestion.id"
-                                                :value="option.id"
+                                            <input :type="currentQuestion.is_multiple ? 'checkbox' : 'radio'"
+                                                :name="'question_' + currentQuestion.id" :value="option.id"
                                                 :checked="isOptionSelected(option.id)"
-                                                @change="selectOption(option.id)"
-                                            >
+                                                @change="selectOption(option.id)">
                                         </div>
                                         <div class="option-content">
                                             <span v-if="option.title">{{ option.title }}</span>
-                                            <img v-if="option.image" :src="option.image" alt="Option" class="option-image">
+                                            <img v-if="option.image" :src="option.image" alt="Option"
+                                                class="option-image">
                                         </div>
                                     </div>
                                 </div>
@@ -96,27 +91,17 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-md-6">
-                            <button 
-                                class="btn btn-outline-secondary" 
-                                @click="previousQuestion"
-                                :disabled="currentQuestionIndex === 0"
-                            >
+                            <button class="btn btn-outline-secondary" @click="previousQuestion"
+                                :disabled="currentQuestionIndex === 0">
                                 <i class="fas fa-chevron-left"></i> পূর্ববর্তী
                             </button>
                         </div>
                         <div class="col-md-6 text-right">
-                            <button 
-                                v-if="currentQuestionIndex < questions.length - 1"
-                                class="btn btn-primary" 
-                                @click="nextQuestion"
-                            >
+                            <button v-if="currentQuestionIndex < questions.length - 1" class="btn btn-primary"
+                                @click="nextQuestion">
                                 পরবর্তী <i class="fas fa-chevron-right"></i>
                             </button>
-                            <button 
-                                v-else
-                                class="btn btn-success" 
-                                @click="finishExam"
-                            >
+                            <button v-else class="btn btn-success" @click="finishExam">
                                 <i class="fas fa-check-circle"></i> পরীক্ষা শেষ করুন
                             </button>
                         </div>
@@ -130,17 +115,11 @@
                     <h6>প্রশ্ন নেভিগেশন</h6>
                 </div>
                 <div class="question-grid">
-                    <button
-                        v-for="(question, index) in questions"
-                        :key="question.id"
-                        class="grid-item"
-                        :class="{
-                            'current': index === currentQuestionIndex,
-                            'answered': hasAnswer(question.id),
-                            'unanswered': !hasAnswer(question.id)
-                        }"
-                        @click="goToQuestion(index)"
-                    >
+                    <button v-for="(question, index) in questions" :key="question.id" class="grid-item" :class="{
+                        'current': index === currentQuestionIndex,
+                        'answered': hasAnswer(question.id),
+                        'unanswered': !hasAnswer(question.id)
+                    }" @click="goToQuestion(index)">
                         {{ index + 1 }}
                     </button>
                 </div>
@@ -172,7 +151,7 @@
                             </div>
                             <h2>পরীক্ষা সম্পন্ন!</h2>
                             <p class="lead">{{ completionMessage || 'আপনার উত্তরপত্র সফলভাবে জমা দেওয়া হয়েছে।' }}</p>
-                            
+
                             <div class="exam-summary">
                                 <div class="summary-item">
                                     <span class="label">মোট প্রশ্ন:</span>
@@ -187,7 +166,7 @@
                                     <span class="value">{{ formatDuration(examDuration) }}</span>
                                 </div>
                             </div>
-                            
+
                             <button class="btn btn-primary btn-lg mt-4" @click="goToHome">
                                 <i class="fas fa-home"></i> হোম পেজে যান
                             </button>
@@ -201,6 +180,7 @@
 
 <script>
 import moment from 'moment';
+import axios from 'axios';
 
 export default {
     data() {
@@ -228,118 +208,116 @@ export default {
             maxFullscreenExits: 2
         }
     },
-    
+
     computed: {
         currentQuestion() {
             return this.questions[this.currentQuestionIndex] || {};
         },
-        
+
         isWarningTime() {
             return this.remainingTime <= 300; // 5 minutes
         },
-        
+
         isCriticalTime() {
             return this.remainingTime <= 60; // 1 minute
         },
-        
+
         answeredQuestions() {
             return Object.keys(this.answers).length;
         }
     },
-    
+
     async created() {
         await this.initializeExam();
         this.setupSecurityMeasures();
     },
-    
+
     mounted() {
         this.enterFullscreen();
         document.addEventListener('visibilitychange', this.handleVisibilityChange);
         document.addEventListener('keydown', this.preventKeyboardShortcuts);
     },
-    
+
     beforeUnmount() {
         this.cleanupExam();
     },
-    
+
     methods: {
         async initializeExam() {
             try {
-                const quizId = this.$route.params.id;
+                const quizId = JSON.parse(localStorage.getItem('selectedQuiz'))?.id;
                 const sessionToken = sessionStorage.getItem('examSession');
-                
+
                 if (!sessionToken) {
-                    this.$router.push(`/quiz/${quizId}/register`);
+                    this.$router.push(`/quiz-register`);
                     return;
                 }
-                
-                const response = await fetch(`/api/v1/quizzes/quiz_questions?quiz_id=${quizId}`, {
-                    method: 'GET',
+
+                const response = await axios.get(`/quizzes/quiz_questions?quiz_id=${quizId}`, {
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${sessionToken}`
                     }
                 });
-             
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    this.quiz = data.quiz;
-                    this.questions = data.questions;
-                    this.studentInfo = data.student_info;
-                    this.completionMessage = data.completion_message;
-                    
+
+
+                if (response.data.statusCode === 200) {
+                    const data = response.data.data;
+                    this.quiz = data.quiz || data;
+                    this.questions = data.questions || data.quiz_questions || [];
+                    this.studentInfo = data.student_info || { name: 'Student', email: 'student@example.com' };
+                    this.completionMessage = data.completion_message || 'পরীক্ষা সম্পন্ন হয়েছে।';
+
                     this.startExam();
                 } else {
-                    this.$toast.error('পরীক্ষা শুরু করতে সমস্যা');
+                    window.s_error(response.data.message || 'পরীক্ষা শুরু করতে সমস্যা');
                     this.$router.push('/');
                 }
             } catch (error) {
                 console.error('Exam initialization error:', error);
-                this.$toast.error('সংযোগে সমস্যা');
+                window.s_error('সংযোগে সমস্যা');
             }
         },
-        
+
         startExam() {
             this.examStarted = true;
             this.examStartTime = moment();
-            
+
             // Calculate remaining time
             const endTime = moment(this.quiz.exam_end_datetime);
             const now = moment();
             this.remainingTime = Math.max(0, Math.floor(endTime.diff(now) / 1000));
-            
+
             this.startTimer();
         },
-        
+
         startTimer() {
             this.timer = setInterval(() => {
                 this.remainingTime--;
-                
+
                 // 5 minute warning
                 if (this.remainingTime === 300 && !this.warningShown) {
                     this.showWarning('পরীক্ষা শেষ হতে ৫ মিনিট বাকি!');
                     this.warningShown = true;
                 }
-                
+
                 // 1 minute critical warning
                 if (this.remainingTime === 60 && !this.criticalWarningShown) {
                     this.showWarning('পরীক্ষা শেষ হতে ১ মিনিট বাকি!');
                     this.criticalWarningShown = true;
                 }
-                
+
                 // Time up
                 if (this.remainingTime <= 0) {
                     this.autoSubmitExam('সময় শেষ হয়ে গেছে');
                 }
             }, 1000);
         },
-        
+
         showWarning(message) {
             this.warningMessage = message;
             this.warningCountdown = 5;
             $('#warningModal').modal('show');
-            
+
             this.warningTimer = setInterval(() => {
                 this.warningCountdown--;
                 if (this.warningCountdown <= 0) {
@@ -348,24 +326,24 @@ export default {
                 }
             }, 1000);
         },
-        
+
         setupSecurityMeasures() {
             // Prevent right-click context menu
             document.addEventListener('contextmenu', e => e.preventDefault());
-            
+
             // Prevent text selection and drag
             document.addEventListener('selectstart', e => e.preventDefault());
             document.addEventListener('dragstart', e => e.preventDefault());
-            
+
             // Prevent screenshots (partial prevention)
             document.addEventListener('keydown', this.preventScreenshot);
-            
+
             // Disable copy, paste, cut
             document.addEventListener('copy', e => e.preventDefault());
             document.addEventListener('paste', e => e.preventDefault());
             document.addEventListener('cut', e => e.preventDefault());
         },
-        
+
         preventKeyboardShortcuts(e) {
             // Prevent common shortcuts
             if (e.ctrlKey || e.metaKey) {
@@ -373,32 +351,32 @@ export default {
                     e.preventDefault();
                 }
             }
-            
+
             // Prevent F12, F5, etc.
             if ([112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123].includes(e.keyCode)) {
                 e.preventDefault();
             }
-            
+
             // Prevent Alt+Tab, Alt+F4
             if (e.altKey && ['Tab', 'F4'].includes(e.key)) {
                 e.preventDefault();
             }
         },
-        
+
         preventScreenshot(e) {
             // Detect common screenshot shortcuts
-            if ((e.ctrlKey && e.shiftKey && e.key === 'S') || 
+            if ((e.ctrlKey && e.shiftKey && e.key === 'S') ||
                 (e.key === 'PrintScreen') ||
                 (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key))) {
                 e.preventDefault();
                 this.autoSubmitExam('স্ক্রিনশট নেওয়ার চেষ্টা করা হয়েছে');
             }
         },
-        
+
         handleVisibilityChange() {
             if (document.hidden && this.examStarted && !this.examCompleted) {
                 this.tabSwitchCount++;
-                
+
                 if (this.tabSwitchCount >= this.maxTabSwitches) {
                     this.autoSubmitExam('অনুমোদিত সংখ্যক ট্যাব পরিবর্তনের সীমা অতিক্রম');
                 } else {
@@ -406,37 +384,48 @@ export default {
                 }
             }
         },
-        
+
         enterFullscreen() {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
+            try {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.warn('Could not enter fullscreen:', err);
+                    });
+                }
+                document.addEventListener('fullscreenchange', this.handleFullscreenChange);
+            } catch (error) {
+                console.warn('Fullscreen not supported or failed:', error);
             }
-            
-            document.addEventListener('fullscreenchange', this.handleFullscreenChange);
         },
-        
+
         handleFullscreenChange() {
             if (!document.fullscreenElement && this.examStarted && !this.examCompleted) {
                 this.fullscreenExitCount++;
-                
+
                 if (this.fullscreenExitCount >= this.maxFullscreenExits) {
                     this.autoSubmitExam('ফুলস্ক্রিন মোড থেকে বের হওয়া');
                 } else {
                     this.showWarning('ফুলস্ক্রিন মোড বজায় রাখুন!');
-                    setTimeout(() => this.enterFullscreen(), 1000);
+                    setTimeout(() => {
+                        try {
+                            this.enterFullscreen();
+                        } catch (err) {
+                            console.warn('Could not re-enter fullscreen:', err);
+                        }
+                    }, 1000);
                 }
             }
         },
-        
+
         selectOption(optionId) {
             const questionId = this.currentQuestion.id;
-            
+
             if (this.currentQuestion.is_multiple) {
                 // Multiple choice
                 if (!this.answers[questionId]) {
                     this.answers[questionId] = [];
                 }
-                
+
                 const index = this.answers[questionId].indexOf(optionId);
                 if (index > -1) {
                     this.answers[questionId].splice(index, 1);
@@ -447,77 +436,97 @@ export default {
                 // Single choice
                 this.answers[questionId] = [optionId];
             }
-            
+
             this.$forceUpdate();
         },
-        
+
         isOptionSelected(optionId) {
             const questionId = this.currentQuestion.id;
             const answer = this.answers[questionId];
             return answer && answer.includes(optionId);
         },
-        
+
         hasAnswer(questionId) {
             return this.answers[questionId] && this.answers[questionId].length > 0;
         },
-        
+
         nextQuestion() {
             if (this.currentQuestionIndex < this.questions.length - 1) {
                 this.currentQuestionIndex++;
             }
         },
-        
+
         previousQuestion() {
             if (this.currentQuestionIndex > 0) {
                 this.currentQuestionIndex--;
             }
         },
-        
+
         goToQuestion(index) {
             this.currentQuestionIndex = index;
         },
-        
+
         async finishExam() {
-            if (confirm('আপনি কি নিশ্চিত যে পরীক্ষা শেষ করতে চান?')) {
+            const confirmed = await window.s_confirm(
+                'আপনি কি নিশ্চিত যে পরীক্ষা শেষ করতে চান?',
+                'হ্যাঁ, শেষ করুন',
+                'question'
+            );
+            
+            if (confirmed) {
                 await this.submitExam('স্বাভাবিক সমাপ্তি');
             }
         },
-        
+
         async autoSubmitExam(reason) {
             await this.submitExam(reason);
         },
-        
+
         async submitExam(reason) {
             try {
                 this.examDuration = moment().diff(this.examStartTime, 'seconds');
-                
+
                 const sessionToken = sessionStorage.getItem('examSession');
-                const response = await fetch('/api/v1/quiz/submit', {
-                    method: 'POST',
+                const response = await axios.post('/quizzes/submit_exam', {
+                    quiz_id: this.quiz.id,
+                    answers: this.answers,
+                    duration: this.examDuration,
+                    submit_reason: reason
+                }, {
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${sessionToken}`
-                    },
-                    body: JSON.stringify({
-                        quiz_id: this.quiz.id,
-                        answers: this.answers,
-                        duration: this.examDuration,
-                        submit_reason: reason
-                    })
+                    }
                 });
-                
-                if (response.ok) {
+
+                if (response.data.statusCode === 200) {
                     this.examCompleted = true;
                     this.cleanupExam();
+                    window.s_alert('পরীক্ষা সফলভাবে জমা দেওয়া হয়েছে', 'success');
                 } else {
-                    this.$toast.error('উত্তরপত্র জমা দিতে সমস্যা');
+                    window.s_error(response.data.message || 'উত্তরপত্র জমা দিতে সমস্যা');
                 }
             } catch (error) {
                 console.error('Submit error:', error);
-                this.$toast.error('সংযোগে সমস্যা');
+                let errorMessage = 'সংযোগে সমস্যা';
+                
+                if (error.response) {
+                    // Server responded with error status
+                    if (error.response.status === 400) {
+                        errorMessage = error.response.data?.message || 'অবৈধ ডেটা পাঠানো হয়েছে';
+                    } else if (error.response.status === 401) {
+                        errorMessage = 'অনুমোদন প্রয়োজন';
+                        sessionStorage.removeItem('examSession');
+                        this.$router.push('/quiz-register');
+                        return;
+                    } else {
+                        errorMessage = error.response.data?.message || 'সার্ভার ত্রুটি';
+                    }
+                }
+                
+                window.s_error(errorMessage);
             }
         },
-        
+
         cleanupExam() {
             if (this.timer) {
                 clearInterval(this.timer);
@@ -525,38 +534,44 @@ export default {
             if (this.warningTimer) {
                 clearInterval(this.warningTimer);
             }
-            
+
             document.removeEventListener('visibilitychange', this.handleVisibilityChange);
             document.removeEventListener('keydown', this.preventKeyboardShortcuts);
             document.removeEventListener('fullscreenchange', this.handleFullscreenChange);
-            
-            // Exit fullscreen
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
+
+            // Exit fullscreen safely
+            try {
+                if (document.exitFullscreen && document.fullscreenElement) {
+                    document.exitFullscreen().catch(err => {
+                        console.warn('Could not exit fullscreen:', err);
+                    });
+                }
+            } catch (error) {
+                console.warn('Fullscreen exit failed:', error);
             }
         },
-        
+
         formatTime(seconds) {
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
             const secs = seconds % 60;
-            
+
             return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         },
-        
+
         formatDuration(seconds) {
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
             const secs = seconds % 60;
-            
+
             let duration = '';
             if (hours > 0) duration += `${hours} ঘন্টা `;
             if (minutes > 0) duration += `${minutes} মিনিট `;
             duration += `${secs} সেকেন্ড`;
-            
+
             return duration;
         },
-        
+
         goToHome() {
             sessionStorage.removeItem('examSession');
             this.$router.push('/');
@@ -577,7 +592,7 @@ export default {
 
 .exam-header {
     background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 1rem 0;
     position: sticky;
     top: 0;
@@ -618,8 +633,15 @@ export default {
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 .question-container {
@@ -631,7 +653,7 @@ export default {
     background: white;
     border-radius: 15px;
     padding: 2rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .question-header {
@@ -714,7 +736,7 @@ export default {
 .exam-navigation {
     background: white;
     padding: 1rem 0;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     position: sticky;
     bottom: 0;
 }
@@ -726,7 +748,7 @@ export default {
     transform: translateY(-50%);
     background: white;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     padding: 1rem;
     max-width: 200px;
     z-index: 1000;
@@ -792,9 +814,17 @@ export default {
     margin-right: 0.5rem;
 }
 
-.legend-color.answered { background: #28a745; }
-.legend-color.current { background: #007bff; }
-.legend-color.unanswered { background: #ffc107; }
+.legend-color.answered {
+    background: #28a745;
+}
+
+.legend-color.current {
+    background: #007bff;
+}
+
+.legend-color.unanswered {
+    background: #ffc107;
+}
 
 .exam-completed {
     min-height: 100vh;
@@ -809,7 +839,7 @@ export default {
     border-radius: 20px;
     padding: 3rem;
     text-align: center;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 
 .completion-icon {
@@ -871,19 +901,19 @@ export default {
         margin: 1rem auto;
         max-width: 100%;
     }
-    
+
     .exam-header .row {
         text-align: center;
     }
-    
+
     .exam-header .col-md-4 {
         margin-bottom: 0.5rem;
     }
-    
+
     .question-card {
         padding: 1rem;
     }
-    
+
     .completion-card {
         margin: 1rem;
         padding: 2rem 1rem;
@@ -905,7 +935,8 @@ export default {
 }
 
 /* Allow text selection only in input fields */
-input, textarea {
+input,
+textarea {
     -webkit-user-select: text;
     -khtml-user-select: text;
     -moz-user-select: text;

@@ -7,6 +7,10 @@ Route::prefix('v1')->group(function () {
     // Route::prefix('v1')->middleware('auth:api')->group(function () {
     Route::prefix('quizzes')->group(function () {
         Route::get('quiz_questions', [Controller::class, 'quiz_questions']);
+        Route::post('start_exam', [Controller::class, 'start_quiz_exam']);
+        Route::post('submit_exam', [Controller::class, 'submit_quiz']);
+        Route::get('result', [Controller::class, 'get_participant_result']);
+        Route::get('export/{quizId}', [Controller::class, 'export_results']);
         Route::get('', [Controller::class, 'index']);
         Route::get('{slug}', [Controller::class, 'show']);
         Route::post('store', [Controller::class, 'store']);
