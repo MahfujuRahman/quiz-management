@@ -12,7 +12,7 @@ class ValidateQuizCode
         
         try {
             $quiz = self::$model::query()
-                ->select(['id', 'title', 'exam_start_datetime', 'exam_end_datetime', 'status'])
+                ->select(['id', 'title', 'exam_start_datetime', 'exam_end_datetime', 'status','slug'])
                 ->where(function ($query) use ($quizId) {
                     $query->where('id', $quizId)
                           ->orWhere('slug', $quizId);

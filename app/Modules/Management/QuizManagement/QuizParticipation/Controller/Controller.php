@@ -6,18 +6,6 @@ use Illuminate\Http\Request;
 
 class Controller extends \App\Http\Controllers\Controller
 {
-    public function register_for_quiz(Request $request)
-    {
-        $request->validate([
-            'quiz_id' => 'required|integer|exists:quizzes,id',
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:20',
-            'organization' => 'nullable|string|max:255'
-        ]);
-
-        return \App\Modules\Management\QuizManagement\QuizParticipation\Actions\RegisterForQuiz::execute($request);
-    }
 
     public function start_quiz_exam(Request $request)
     {

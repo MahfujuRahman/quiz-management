@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
+      /**
+     php artisan migrate --path='/app/Modules/Management/QuizManagement/Quiz/Database/create_sessions_table.php' 
      * Run the migrations.
      */
     public function up(): void

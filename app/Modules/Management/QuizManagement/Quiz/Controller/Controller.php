@@ -15,6 +15,7 @@ use App\Modules\Management\QuizManagement\Quiz\Actions\RestoreData;
 use App\Modules\Management\QuizManagement\Quiz\Actions\UpdateStatus;
 use App\Modules\Management\QuizManagement\Quiz\Actions\GetSingleData;
 use App\Modules\Management\QuizManagement\Quiz\Actions\QuizQuestions;
+use App\Modules\Management\QuizManagement\Quiz\Actions\RegisterForQuiz;
 use App\Modules\Management\QuizManagement\Quiz\Actions\GetPublicQuizzes;
 use App\Modules\Management\QuizManagement\Quiz\Actions\ValidateQuizCode;
 use App\Modules\Management\QuizManagement\Quiz\Validations\DataStoreValidation;
@@ -88,12 +89,27 @@ class Controller extends ControllersController
 
     public function get_public_quizzes(Request $request)
     {
+
         $data = GetPublicQuizzes::execute();
         return $data;
     }
     public function validate_quiz_code()
     {
         $data = ValidateQuizCode::execute();
+        return $data;
+    }
+
+    public function register_for_quiz(Request $request)
+    {
+        $request->validate([
+            'quiz_id' => 'required|integer|exists:quizzes,id',
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'required|string|max:20',
+            'organization' => 'nullable|string|max:255'
+        ]);
+
+        $data = RegisterForQuiz::execute($request);
         return $data;
     }
 }

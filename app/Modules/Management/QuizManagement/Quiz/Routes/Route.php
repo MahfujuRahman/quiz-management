@@ -23,7 +23,7 @@ Route::prefix('v1')->group(function () {
     Route::group(['prefix' => 'public-quizzes'], function () {
         Route::get('', [Controller::class, 'get_public_quizzes']);
         Route::post('/validate-code', [Controller::class, 'validate_quiz_code']);
-        
+        Route::post('/register', [Controller::class, 'register_for_quiz']);
         // Route::get('/details/{id}', [\App\Modules\Management\QuizManagement\PublicQuiz\Controller\Controller::class, 'get_quiz_details']);
     });
 });

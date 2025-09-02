@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Management\QuizManagement\QuizParticipation\Actions;
+namespace App\Modules\Management\QuizManagement\Quiz\Actions;
 
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -14,7 +14,10 @@ class RegisterForQuiz
     {
         try {
             $quizId = $request->input('quiz_id');
-            $studentInfo = $request->input('student_info');
+            $name = $request->input('name');
+            $email = $request->input('email');
+            $phone = $request->input('phone');
+            $organization = $request->input('organization');
 
             // Validate quiz exists and is active
             $quiz = self::$quizModel::query()
@@ -27,9 +30,9 @@ class RegisterForQuiz
             }
 
             // Check if quiz has started and not ended
-            $now = Carbon::now();
-            $startTime = Carbon::parse($quiz->exam_start_datetime);
-            $endTime = Carbon::parse($quiz->exam_end_datetime);
+            $now = Carbon::now('Asia/Dhaka');
+            $startTime = Carbon::parse($quiz->exam_start_datetime, 'Asia/Dhaka');
+            $endTime = Carbon::parse($quiz->exam_end_datetime, 'Asia/Dhaka');
 
             if ($now->isBefore($startTime)) {
                 return messageResponse('Quiz has not started yet', [], 400, 'quiz_not_started');
@@ -39,10 +42,13 @@ class RegisterForQuiz
                 return messageResponse('Quiz has already ended', [], 400, 'quiz_ended');
             }
 
-            // Check if user already registered for this quiz (based on mobile number)
+            // Check if user already registered for this quiz (based on email)
             $existingParticipation = self::$participationModel::query()
                 ->where('quiz_id', $quizId)
-                ->whereJsonContains('student_info->mobile', $studentInfo['mobile'])
+                ->where(function ($query) use ($email, $phone) {
+                    $query->where('email', $email)
+                        ->orWhere('phone', $phone);
+                })
                 ->first();
 
             if ($existingParticipation) {
@@ -56,11 +62,14 @@ class RegisterForQuiz
 
             // Create new participation record
             $sessionToken = Str::random(64);
-            
+
             $participation = self::$participationModel::create([
                 'quiz_id' => $quizId,
                 'session_token' => $sessionToken,
-                'student_info' => $studentInfo,
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
+                'organization' => $organization,
                 'started_at' => $now,
                 'is_completed' => false,
                 'status' => 'active'
@@ -71,7 +80,6 @@ class RegisterForQuiz
                 'session_token' => $sessionToken,
                 'participation_id' => $participation->id
             ]);
-
         } catch (\Exception $e) {
             return messageResponse($e->getMessage(), [], 500, 'server_error');
         }

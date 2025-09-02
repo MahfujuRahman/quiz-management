@@ -36,7 +36,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Countdown Timer -->
                             <div class="countdown-timer text-center mt-3" v-if="timeToStart > 0">
                                 <h5 class="text-muted">পরীক্ষা শুরু হতে বাকি</h5>
@@ -72,16 +72,11 @@
                                         <label class="form-label required">
                                             <i class="fas fa-user"></i> পূর্ণ নাম
                                         </label>
-                                        <input 
-                                            type="text" 
-                                            class="form-control" 
-                                            v-model="studentInfo.name"
-                                            placeholder="আপনার পূর্ণ নাম লিখুন"
-                                            required
-                                        >
+                                        <input type="text" class="form-control" v-model="studentInfo.name"
+                                            placeholder="আপনার পূর্ণ নাম লিখুন" required>
                                     </div>
-                                    
-                                    <div class="col-md-6 mb-3">
+
+                                    <!-- <div class="col-md-6 mb-3">
                                         <label class="form-label required">
                                             <i class="fas fa-users"></i> গ্রুপ/বিভাগ
                                         </label>
@@ -92,9 +87,9 @@
                                             <option value="arts">মানবিক</option>
                                             <option value="others">অন্যান্য</option>
                                         </select>
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
+                                    </div> -->
+
+                                    <!-- <div class="col-md-6 mb-3">
                                         <label class="form-label required">
                                             <i class="fas fa-graduation-cap"></i> শ্রেণি
                                         </label>
@@ -109,44 +104,29 @@
                                             <option value="12">দ্বাদশ</option>
                                         </select>
                                     </div>
-                                    
+
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label required">
                                             <i class="fas fa-school"></i> শিক্ষা প্রতিষ্ঠান
                                         </label>
-                                        <input 
-                                            type="text" 
-                                            class="form-control" 
-                                            v-model="studentInfo.institution"
-                                            placeholder="আপনার শিক্ষা প্রতিষ্ঠানের নাম"
-                                            required
-                                        >
-                                    </div>
-                                    
+                                        <input type="text" class="form-control" v-model="studentInfo.institution"
+                                            placeholder="আপনার শিক্ষা প্রতিষ্ঠানের নাম" required>
+                                    </div> -->
+
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label required">
                                             <i class="fas fa-phone"></i> মোবাইল নম্বর
                                         </label>
-                                        <input 
-                                            type="tel" 
-                                            class="form-control" 
-                                            v-model="studentInfo.mobile"
-                                            placeholder="01XXXXXXXXX"
-                                            pattern="[0-9]{11}"
-                                            required
-                                        >
+                                        <input type="tel" class="form-control" v-model="studentInfo.phone"
+                                            placeholder="01XXXXXXXXX" pattern="[0-9]{11}" required>
                                     </div>
-                                    
-                                    <div class="col-md-6 mb-3">
+
+                                    <div class="col-md-12 mb-3">
                                         <label class="form-label">
                                             <i class="fas fa-envelope"></i> ইমেইল (ঐচ্ছিক)
                                         </label>
-                                        <input 
-                                            type="email" 
-                                            class="form-control" 
-                                            v-model="studentInfo.email"
-                                            placeholder="your@email.com"
-                                        >
+                                        <input type="email" class="form-control" v-model="studentInfo.email"
+                                            placeholder="your@email.com">
                                     </div>
                                 </div>
 
@@ -157,21 +137,19 @@
                                             <i class="fas fa-exclamation-triangle"></i> পরীক্ষার নিয়মাবলী
                                         </h6>
                                         <ul class="list-unstyled mb-0">
-                                            <li><i class="fas fa-check text-success"></i> পরীক্ষার সময় অন্য ট্যাব খোলা যাবে না</li>
+                                            <li><i class="fas fa-check text-success"></i> পরীক্ষার সময় অন্য ট্যাব খোলা
+                                                যাবে না</li>
                                             <li><i class="fas fa-check text-success"></i> স্ক্রিনশট নেওয়া যাবে না</li>
                                             <li><i class="fas fa-check text-success"></i> টেক্সট কপি করা যাবে না</li>
-                                            <li><i class="fas fa-check text-success"></i> সময় শেষ হলে স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে</li>
-                                            <li><i class="fas fa-check text-success"></i> ৫ মিনিট আগে সতর্কতা দেওয়া হবে</li>
+                                            <li><i class="fas fa-check text-success"></i> সময় শেষ হলে স্বয়ংক্রিয়ভাবে
+                                                জমা হয়ে যাবে</li>
+                                            <li><i class="fas fa-check text-success"></i> ৫ মিনিট আগে সতর্কতা দেওয়া হবে
+                                            </li>
                                         </ul>
-                                        
+
                                         <div class="form-check mt-3">
-                                            <input 
-                                                type="checkbox" 
-                                                class="form-check-input" 
-                                                id="agreeTerms"
-                                                v-model="agreedToTerms"
-                                                required
-                                            >
+                                            <input type="checkbox" class="form-check-input" id="agreeTerms"
+                                                v-model="agreedToTerms" required>
                                             <label class="form-check-label" for="agreeTerms">
                                                 আমি উপরের সকল নিয়মাবলী মেনে চলতে সম্মত
                                             </label>
@@ -181,19 +159,16 @@
 
                                 <!-- Submit Button -->
                                 <div class="text-center mt-4">
-                                    <button 
-                                        type="submit" 
-                                        class="btn btn-success btn-lg px-5"
-                                        :disabled="!canStartExam || loading"
-                                    >
+                                    <button type="submit" class="btn btn-success btn-lg px-5"
+                                        :disabled="!canStartExam || loading">
                                         <i class="fas fa-play-circle" v-if="!loading"></i>
                                         <i class="fas fa-spinner fa-spin" v-else></i>
                                         {{ loading ? 'অপেক্ষা করুন...' : 'পরীক্ষা শুরু করুন' }}
                                     </button>
-                                    
+
                                     <div class="mt-3" v-if="!canStartExam && timeToStart > 0">
                                         <small class="text-warning">
-                                            <i class="fas fa-clock"></i> 
+                                            <i class="fas fa-clock"></i>
                                             পরীক্ষা এখনও শুরু হয়নি। অপেক্ষা করুন...
                                         </small>
                                     </div>
@@ -219,7 +194,7 @@ export default {
                 group: '',
                 class: '',
                 institution: '',
-                mobile: '',
+                phone: '',
                 email: ''
             },
             agreedToTerms: false,
@@ -233,18 +208,18 @@ export default {
             countdownInterval: null
         }
     },
-    
+
     async created() {
         await this.loadQuizInfo();
         this.startCountdown();
     },
-    
+
     beforeUnmount() {
         if (this.countdownInterval) {
             clearInterval(this.countdownInterval);
         }
     },
-    
+
     computed: {
         canStartExam() {
             if (!this.quiz) return false;
@@ -254,41 +229,41 @@ export default {
             return now.isAfter(startTime) && now.isBefore(endTime);
         }
     },
-    
+
     methods: {
         async loadQuizInfo() {
             try {
-                const quizId = this.$route.params.id;
-                const response = await fetch(`/api/v1/quiz/${quizId}`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    this.quiz = data.quiz;
+                const quizId = JSON.parse(localStorage.getItem('selectedQuiz'))?.slug;
+                const response = await axios.get(`/quizzes/${quizId}`);
+
+                if (response.data.statusCode == 200) {
+                    const data = await response.data.data;
+                    this.quiz = data;
                 } else {
-                    this.$toast.error('পরীক্ষার তথ্য লোড করতে সমস্যা');
+                    window.s_error('পরীক্ষার তথ্য লোড করতে সমস্যা');
                     this.$router.push('/');
                 }
             } catch (error) {
                 console.error('Error loading quiz:', error);
-                this.$toast.error('সংযোগে সমস্যা হয়েছে');
+                window.s_error('সংযোগে সমস্যা হয়েছে');
             }
         },
-        
+
         startCountdown() {
             this.updateCountdown();
             this.countdownInterval = setInterval(this.updateCountdown, 1000);
         },
-        
+
         updateCountdown() {
             if (!this.quiz) return;
-            
+
             const now = moment();
             const startTime = moment(this.quiz.exam_start_datetime);
-            
+
             if (now.isBefore(startTime)) {
                 const duration = moment.duration(startTime.diff(now));
                 this.timeToStart = duration.asMilliseconds();
-                
+
                 this.countdown = {
                     hours: Math.floor(duration.asHours()),
                     minutes: duration.minutes(),
@@ -301,42 +276,38 @@ export default {
                 }
             }
         },
-        
+
         formatDateTime(datetime) {
             return moment(datetime).format('DD/MM/YYYY hh:mm A');
         },
-        
+
         async submitRegistration() {
             if (!this.canStartExam) {
-                this.$toast.warning('পরীক্ষা এখনও শুরু হয়নি');
+                window.s_alert('পরীক্ষা এখনও শুরু হয়নি', 'warning');
                 return;
             }
-            
+
             try {
                 this.loading = true;
-                
-                const response = await fetch('/api/v1/quiz/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        quiz_id: this.quiz.id,
-                        student_info: this.studentInfo
-                    })
+
+                const response = await axios.post('/public-quizzes/register', {
+                    quiz_id: this.quiz.id,
+                    name: this.studentInfo.name,
+                    email: this.studentInfo.email,
+                    phone: this.studentInfo.phone,
                 });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    // Store session token and redirect to exam
-                    sessionStorage.setItem('examSession', data.session_token);
-                    this.$router.push(`/quiz/${this.quiz.id}/exam`);
+
+                if (response.data.statusCode == 200) {
+                    const result = await response.data;
+                    sessionStorage.setItem('examSession', result.data.session_token);
+                    this.$inertia.visit(`/quiz`);
                 } else {
-                    this.$toast.error('নিবন্ধনে সমস্যা হয়েছে');
+                    console.log('fdsfds', response);
+                    window.s_error(response.data.data.message || 'নিবন্ধনে সমস্যা হয়েছে');
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                this.$toast.error('সংযোগে সমস্যা হয়েছে');
+                window.s_error('সংযোগে সমস্যা হয়েছে');
             } finally {
                 this.loading = false;
             }
@@ -367,7 +338,7 @@ export default {
     align-items: center;
     margin-bottom: 1rem;
     padding: 0.5rem;
-    background: rgba(0,0,0,0.05);
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 8px;
 }
 
@@ -389,7 +360,7 @@ export default {
     padding: 1rem;
     background: white;
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .countdown-number {
@@ -454,15 +425,15 @@ export default {
     .countdown-display {
         gap: 1rem;
     }
-    
+
     .countdown-item {
         padding: 0.5rem;
     }
-    
+
     .countdown-number {
         font-size: 1.5rem;
     }
-    
+
     .info-item {
         font-size: 0.9rem;
     }

@@ -39,6 +39,5 @@ include_once base_path("app/Modules/Management/QuizManagement/QuizQuestionTopic/
 include_once base_path("app/Modules/Management/QuizManagement/QuizQuestion/Routes/Route.php");
 include_once base_path("app/Modules/Management/QuizManagement/Quiz/Routes/Route.php");
 include_once base_path("app/Modules/Management/QuizManagement/QuizSubmissionResult/Routes/Route.php");
-include_once base_path("app/Modules/Management/QuizManagement/PublicQuiz/Routes/Route.php");
 include_once base_path("app/Modules/Management/QuizManagement/QuizParticipation/Routes/Route.php");
 
