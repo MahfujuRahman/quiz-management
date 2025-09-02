@@ -22,25 +22,32 @@
 
         <!-- Exam Interface -->
         <div class="exam-container" v-if="examStarted && !examCompleted">
-            <!-- Header -->
+            <!-- Mobile Header -->
             <div class="exam-header">
-                <div class="container-fluid">
+                <div class="container-fluid px-3">
                     <div class="row align-items-center">
-                        <div class="col-md-4">
-                            <h5 class="exam-title">{{ quiz.title }}</h5>
-                            <small class="text-muted">{{ studentInfo.name }}</small>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <div class="question-counter">
-                                প্রশ্ন {{ currentQuestionIndex + 1 }} / {{ questions.length }}
+                        <!-- Mobile: Stack vertically -->
+                        <div class="col-12 col-md-4 order-1 text-center text-md-start mb-2 mb-md-0">
+                            <div class="exam-info">
+                                <h5 class="exam-title mb-1">{{ quiz.title }}</h5>
+                                <small class="text-muted">{{ studentInfo.name }}</small>
                             </div>
                         </div>
-                        <div class="col-md-4 text-right">
-                            <!-- Timer -->
-                            <div class="timer"
+                        
+                        <!-- Mobile: Question counter in center -->
+                        <div class="col-12 col-md-4 order-2 text-center mb-2 mb-md-0">
+                            <div class="question-counter">
+                                <i class="fas fa-question-circle me-2"></i>
+                                {{ currentQuestionIndex + 1 }} / {{ questions.length }}
+                            </div>
+                        </div>
+                        
+                        <!-- Mobile: Timer at bottom -->
+                        <div class="col-12 col-md-4 order-3 text-center text-md-end">
+                            <div class="timer d-inline-flex align-items-center"
                                 :class="{ 'timer-warning': isWarningTime, 'timer-critical': isCriticalTime }">
-                                <i class="fas fa-clock"></i>
-                                {{ formatTime(remainingTime) }}
+                                <i class="fas fa-clock me-2"></i>
+                                <span class="fw-bold">{{ formatTime(remainingTime) }}</span>
                             </div>
                         </div>
                     </div>
@@ -49,35 +56,85 @@
 
             <!-- Question Content -->
             <div class="question-container">
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-10">
+                <div class="container-fluid px-3">
+                    <div class="row">
+                        <!-- Main Question Area -->
+                        <div class="col-12 col-lg-8">
                             <div class="question-card">
                                 <div class="question-header">
-                                    <span class="question-number">প্রশ্ন {{ currentQuestionIndex + 1 }}</span>
-                                    <span class="question-marks">নম্বর: {{ currentQuestion.mark }}</span>
+                                    <div class="d-flex flex-row flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+                                        <span class="question-number">প্রশ্ন {{ currentQuestionIndex + 1 }}</span>
+                                        <span class="question-type">{{ currentQuestion.is_multiple ? 'একাধিক উত্তর' : 'একক উত্তর' }}</span>
+                                        <span class="question-marks">নম্বর: {{ currentQuestion.mark }}</span>
+                                    </div>
                                 </div>
 
                                 <div class="question-content">
-                                    <h4 v-html="currentQuestion.title"></h4>
+                                    <h4 class="question-text" v-html="currentQuestion.title"></h4>
                                 </div>
 
                                 <!-- Options -->
                                 <div class="options-container">
-                                    <div v-for="option in currentQuestion.quiz_question_options" :key="option.id"
-                                        class="option-item" :class="{ 'selected': isOptionSelected(option.id) }"
-                                        @click="selectOption(option.id)">
-                                        <div class="option-radio">
-                                            <input :type="currentQuestion.is_multiple ? 'checkbox' : 'radio'"
-                                                :name="'question_' + currentQuestion.id" :value="option.id"
-                                                :checked="isOptionSelected(option.id)"
-                                                @change="selectOption(option.id)">
+                                    <div v-for="(option, index) in currentQuestion.quiz_question_options" 
+                                         :key="option.id"
+                                         class="option-item" 
+                                         :class="{ 'selected': isOptionSelected(option.id) }"
+                                         @click="selectOption(option.id)">
+                                        <div class="option-selector">
+                                            <div class="option-label">
+                                                {{ String.fromCharCode(65 + index) }}
+                                            </div>
+                                            <div class="option-radio">
+                                                <input :type="currentQuestion.is_multiple ? 'checkbox' : 'radio'"
+                                                       :name="'question_' + currentQuestion.id" 
+                                                       :value="option.id"
+                                                       :checked="isOptionSelected(option.id)"
+                                                       @change="selectOption(option.id)">
+                                            </div>
+                                            
                                         </div>
                                         <div class="option-content">
-                                            <span v-if="option.title">{{ option.title }}</span>
-                                            <img v-if="option.image" :src="option.image" alt="Option"
-                                                class="option-image">
+                                            <span v-if="option.title" class="option-text">{{ option.title }}</span>
+                                            <div v-if="option.image" class="option-image-wrapper">
+                                                <img :src="option.image" alt="Option" class="option-image">
+                                            </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Desktop Sidebar -->
+                        <div class="col-lg-4 d-none d-lg-block">
+                            <div class="question-grid-sidebar sticky-top">
+                                <div class="grid-header">
+                                    <h6><i class="fas fa-th me-2"></i>প্রশ্ন নেভিগেশন</h6>
+                                </div>
+                                <div class="question-grid">
+                                    <button v-for="(question, index) in questions" 
+                                            :key="question.id" 
+                                            class="grid-item" 
+                                            :class="{
+                                                'current': index === currentQuestionIndex,
+                                                'answered': hasAnswer(question.id),
+                                                'unanswered': !hasAnswer(question.id)
+                                            }" 
+                                            @click="goToQuestion(index)">
+                                        {{ index + 1 }}
+                                    </button>
+                                </div>
+                                <div class="grid-legend">
+                                    <div class="legend-item">
+                                        <span class="legend-color answered"></span>
+                                        <small>উত্তর দেওয়া ({{ answeredQuestions }})</small>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color current"></span>
+                                        <small>বর্তমান প্রশ্ন</small>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color unanswered"></span>
+                                        <small>অনুত্তরিত ({{ questions.length - answeredQuestions }})</small>
                                     </div>
                                 </div>
                             </div>
@@ -86,55 +143,71 @@
                 </div>
             </div>
 
-            <!-- Navigation -->
-            <div class="exam-navigation">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <button class="btn btn-outline-secondary" @click="previousQuestion"
-                                :disabled="currentQuestionIndex === 0">
-                                <i class="fas fa-chevron-left"></i> পূর্ববর্তী
-                            </button>
+            <!-- Mobile Question Navigation -->
+            <div class="mobile-question-nav d-block d-lg-none">
+                <div class="container-fluid px-3">
+                    <div class="mobile-nav-header">
+                        <h6><i class="fas fa-th-large me-2"></i>প্রশ্ন নেভিগেশন</h6>
+                        <div class="nav-stats">
+                            <span class="badge bg-success me-1">উত্তরিত: {{ answeredQuestions }}</span>
+                            <span class="badge bg-warning">বাকি: {{ questions.length - answeredQuestions }}</span>
                         </div>
-                        <div class="col-md-6 text-right">
-                            <button v-if="currentQuestionIndex < questions.length - 1" class="btn btn-primary"
-                                @click="nextQuestion">
-                                পরবর্তী <i class="fas fa-chevron-right"></i>
-                            </button>
-                            <button v-else class="btn btn-success" @click="finishExam">
-                                <i class="fas fa-check-circle"></i> পরীক্ষা শেষ করুন
-                            </button>
-                        </div>
+                    </div>
+                    <div class="mobile-question-grid">
+                        <button v-for="(question, index) in questions" 
+                                :key="question.id" 
+                                class="mobile-grid-item" 
+                                :class="{
+                                    'current': index === currentQuestionIndex,
+                                    'answered': hasAnswer(question.id),
+                                    'unanswered': !hasAnswer(question.id)
+                                }" 
+                                @click="goToQuestion(index)">
+                            {{ index + 1 }}
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Question Grid -->
-            <div class="question-grid-sidebar">
-                <div class="grid-header">
-                    <h6>প্রশ্ন নেভিগেশন</h6>
-                </div>
-                <div class="question-grid">
-                    <button v-for="(question, index) in questions" :key="question.id" class="grid-item" :class="{
-                        'current': index === currentQuestionIndex,
-                        'answered': hasAnswer(question.id),
-                        'unanswered': !hasAnswer(question.id)
-                    }" @click="goToQuestion(index)">
-                        {{ index + 1 }}
-                    </button>
-                </div>
-                <div class="grid-legend">
-                    <div class="legend-item">
-                        <span class="legend-color answered"></span>
-                        <small>উত্তর দেওয়া</small>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color current"></span>
-                        <small>বর্তমান</small>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color unanswered"></span>
-                        <small>অনুত্তরিত</small>
+            <!-- Navigation Controls -->
+            <div class="exam-navigation">
+                <div class="container-fluid px-3">
+                    <div class="row align-items-center">
+                        <div class="col-6 col-sm-4">
+                            <button class="btn btn-outline-secondary btn-nav" 
+                                    @click="previousQuestion"
+                                    :disabled="currentQuestionIndex === 0">
+                                <i class="fas fa-chevron-left me-2"></i>
+                                <span class="d-none d-sm-inline">পূর্ববর্তী</span>
+                                <span class="d-inline d-sm-none">পূর্ব</span>
+                            </button>
+                        </div>
+                        
+                        <div class="col-12 col-sm-4 order-3 order-sm-2 text-center mt-2 mt-sm-0">
+                            <div class="question-progress">
+                                <div class="progress-bar-wrapper">
+                                    <div class="progress-bar" :style="{ width: ((currentQuestionIndex + 1) / questions.length) * 100 + '%' }"></div>
+                                </div>
+                                <small class="progress-text">{{ Math.round(((currentQuestionIndex + 1) / questions.length) * 100) }}% সম্পন্ন</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-6 col-sm-4 order-2 order-sm-3 text-end">
+                            <button v-if="currentQuestionIndex < questions.length - 1" 
+                                    class="btn btn-primary btn-nav" 
+                                    @click="nextQuestion">
+                                <span class="d-none d-sm-inline">পরবর্তী</span>
+                                <span class="d-inline d-sm-none">পর</span>
+                                <i class="fas fa-chevron-right ms-2"></i>
+                            </button>
+                            <button v-else 
+                                    class="btn btn-success btn-nav" 
+                                    @click="finishExam">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <span class="d-none d-sm-inline">পরীক্ষা শেষ</span>
+                                <span class="d-inline d-sm-none">শেষ</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -142,33 +215,56 @@
 
         <!-- Exam Completed -->
         <div class="exam-completed" v-if="examCompleted">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-6 text-center">
-                        <div class="completion-card">
-                            <div class="completion-icon">
+            <div class="container-fluid px-3">
+                <div class="row justify-content-center align-items-center min-vh-100">
+                    <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+                        <div class="completion-card text-center">
+                            <div class="completion-icon mb-4">
                                 <i class="fas fa-check-circle text-success"></i>
                             </div>
-                            <h2>পরীক্ষা সম্পন্ন!</h2>
-                            <p class="lead">{{ completionMessage || 'আপনার উত্তরপত্র সফলভাবে জমা দেওয়া হয়েছে।' }}</p>
+                            <h2 class="completion-title">পরীক্ষা সম্পন্ন!</h2>
+                            <p class="completion-message">{{ completionMessage || 'আপনার উত্তরপত্র সফলভাবে জমা দেওয়া হয়েছে।' }}</p>
 
                             <div class="exam-summary">
-                                <div class="summary-item">
-                                    <span class="label">মোট প্রশ্ন:</span>
-                                    <span class="value">{{ questions.length }}</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="label">উত্তর দেওয়া:</span>
-                                    <span class="value">{{ answeredQuestions }}</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="label">সময় লেগেছে:</span>
-                                    <span class="value">{{ formatDuration(examDuration) }}</span>
+                                <div class="row g-3">
+                                    <div class="col-12 col-sm-4">
+                                        <div class="summary-item">
+                                            <div class="summary-icon">
+                                                <i class="fas fa-question-circle"></i>
+                                            </div>
+                                            <div class="summary-info">
+                                                <div class="summary-value">{{ questions.length }}</div>
+                                                <div class="summary-label">মোট প্রশ্ন</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-4">
+                                        <div class="summary-item">
+                                            <div class="summary-icon bg-success">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="summary-info">
+                                                <div class="summary-value">{{ answeredQuestions }}</div>
+                                                <div class="summary-label">উত্তর দেওয়া</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-4">
+                                        <div class="summary-item">
+                                            <div class="summary-icon bg-warning">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <div class="summary-info">
+                                                <div class="summary-value">{{ formatDuration(examDuration) }}</div>
+                                                <div class="summary-label">সময় লেগেছে</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <button class="btn btn-primary btn-lg mt-4" @click="goToHome">
-                                <i class="fas fa-home"></i> হোম পেজে যান
+                            <button class="btn btn-primary btn-lg mt-4 w-100 w-sm-auto" @click="goToHome">
+                                <i class="fas fa-home me-2"></i>হোম পেজে যান
                             </button>
                         </div>
                     </div>
@@ -262,6 +358,7 @@ export default {
 
                 if (response.data.statusCode === 200) {
                     const data = response.data.data;
+                    console.log(data);
                     this.quiz = data.quiz || data;
                     this.questions = data.questions || data.quiz_questions || [];
                     this.studentInfo = data.student_info || { name: 'Student', email: 'student@example.com' };
@@ -581,6 +678,7 @@ export default {
 </script>
 
 <style scoped>
+/* Mobile-First Responsive Design */
 .quiz-exam {
     min-height: 100vh;
     background: #f8f9fa;
@@ -588,37 +686,49 @@ export default {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Header - Mobile First */
 .exam-header {
     background: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 0;
     position: sticky;
     top: 0;
     z-index: 1000;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.exam-info {
+    text-align: center;
 }
 
 .exam-title {
     margin: 0;
     color: #2c3e50;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
 }
 
 .question-counter {
     background: #007bff;
     color: white;
     padding: 0.5rem 1rem;
-    border-radius: 25px;
+    border-radius: 20px;
     font-weight: 600;
+    font-size: 0.875rem;
+    display: inline-block;
 }
 
 .timer {
     background: #28a745;
     color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 25px;
-    font-weight: bold;
-    font-size: 1.1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
 }
 
 .timer-warning {
@@ -633,34 +743,27 @@ export default {
 }
 
 @keyframes pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.05);
-    }
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
 
+/* Question Container - Mobile First */
 .question-container {
-    padding: 2rem 0;
-    min-height: 60vh;
+    padding: 1rem 0;
+    min-height: calc(100vh - 200px);
 }
 
 .question-card {
     background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    margin-bottom: 1rem;
 }
 
 .question-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid #e9ecef;
 }
@@ -668,38 +771,54 @@ export default {
 .question-number {
     background: #007bff;
     color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
     font-weight: 600;
+    font-size: 0.8rem;
 }
 
 .question-marks {
     background: #28a745;
     color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
-    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 
-.question-content h4 {
+.question-type {
+    background: #16bebf;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.question-text {
     color: #2c3e50;
     line-height: 1.6;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
 }
 
+/* Options - Mobile First */
 .options-container {
-    display: grid;
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .option-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     padding: 1rem;
     border: 2px solid #e9ecef;
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    background: white;
 }
 
 .option-item:hover {
@@ -712,71 +831,172 @@ export default {
     background: #d4edda;
 }
 
-.option-radio {
-    margin-right: 1rem;
+.option-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 0.75rem;
+    gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .option-radio input {
-    transform: scale(1.2);
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.option-label {
+    background: #007bff;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.75rem;
 }
 
 .option-content {
     flex: 1;
-    display: flex;
-    align-items: center;
+    min-width: 0;
+}
+
+.option-text {
+    color: #2c3e50;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.option-image-wrapper {
+    margin-top: 0.5rem;
 }
 
 .option-image {
-    max-width: 100px;
-    max-height: 100px;
-    object-fit: cover;
-    border-radius: 5px;
+    max-width: 100%;
+    max-height: 120px;
+    object-fit: contain;
+    border-radius: 6px;
 }
 
-.exam-navigation {
+/* Mobile Question Navigation */
+.mobile-question-nav {
     background: white;
+    border-top: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
     padding: 1rem 0;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    bottom: 0;
+    margin: 1rem;
 }
 
-.question-grid-sidebar {
-    position: fixed;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
+.mobile-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.mobile-nav-header h6 {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.nav-stats {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.mobile-question-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(40px, 0fr));
+    gap: 0.5rem;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.mobile-grid-item {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #dee2e6;
     background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    padding: 1rem;
-    max-width: 200px;
-    z-index: 1000;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-grid-item.current {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.mobile-grid-item.answered {
+    background: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.mobile-grid-item.unanswered {
+    background: white;
+    border-color: #ffc107;
+    color: #856404;
+}
+
+/* Desktop Question Sidebar */
+.question-grid-sidebar {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    position: sticky;
+    top: 100px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
 }
 
 .grid-header h6 {
     margin: 0 0 1rem 0;
     text-align: center;
     color: #2c3e50;
+    font-weight: 600;
 }
 
 .question-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    /* grid-template-columns: repeat(14, 0fr); */
+    grid-template-columns: repeat(auto-fill, 32px);
     gap: 0.5rem;
     margin-bottom: 1rem;
 }
 
 .grid-item {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border: 2px solid #dee2e6;
     background: white;
-    border-radius: 5px;
-    font-size: 0.8rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .grid-item.current {
@@ -792,9 +1012,9 @@ export default {
 }
 
 .grid-item.unanswered {
-    background: #ffc107;
-    color: #212529;
+    background: white;
     border-color: #ffc107;
+    color: #856404;
 }
 
 .grid-legend {
@@ -804,14 +1024,15 @@ export default {
 .legend-item {
     display: flex;
     align-items: center;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
 }
 
 .legend-color {
     width: 12px;
     height: 12px;
     border-radius: 2px;
-    margin-right: 0.5rem;
+    flex-shrink: 0;
 }
 
 .legend-color.answered {
@@ -826,101 +1047,283 @@ export default {
     background: #ffc107;
 }
 
+/* Navigation - Mobile First */
+.exam-navigation {
+    background: white;
+    padding: 1rem 0;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px solid #e9ecef;
+    z-index: 1050;
+}
+
+.btn-nav {
+    min-width: 80px;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+}
+
+.question-progress {
+    text-align: center;
+}
+
+.progress-bar-wrapper {
+    width: 100%;
+    max-width: 200px;
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    margin: 0 auto 0.25rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #007bff;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    color: #6c757d;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Completion Screen - Mobile First */
 .exam-completed {
     min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 0;
 }
 
 .completion-card {
     background: white;
-    border-radius: 20px;
-    padding: 3rem;
-    text-align: center;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    padding: 2rem 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .completion-icon {
-    font-size: 4rem;
+    font-size: 3rem;
+}
+
+.completion-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2c3e50;
     margin-bottom: 1rem;
 }
 
+.completion-message {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
 .exam-summary {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin: 2rem 0;
+    margin: 1.5rem 0;
 }
 
 .summary-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.summary-icon {
+    width: 40px;
+    height: 40px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #dee2e6;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+    font-size: 1rem;
 }
 
-.summary-item:last-child {
-    border-bottom: none;
+.summary-icon.bg-success {
+    background: #28a745;
 }
 
-.label {
-    font-weight: 600;
-    color: #6c757d;
+.summary-icon.bg-warning {
+    background: #ffc107;
 }
 
-.value {
-    font-weight: bold;
+.summary-value {
+    font-size: 1.25rem;
+    font-weight: 700;
     color: #2c3e50;
+    display: block;
+    margin-bottom: 0.25rem;
 }
 
+.summary-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Countdown Warning */
 .countdown-warning {
-    font-size: 3rem;
+    font-size: 2rem;
     color: #dc3545;
     margin: 1rem 0;
+    text-align: center;
 }
 
 .countdown-number {
     display: inline-block;
-    width: 60px;
-    height: 60px;
-    line-height: 56px;
+    width: 50px;
+    height: 50px;
+    line-height: 46px;
     background: #dc3545;
     color: white;
     border-radius: 50%;
     font-weight: bold;
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    .question-grid-sidebar {
-        position: static;
-        transform: none;
-        margin: 1rem auto;
-        max-width: 100%;
-    }
+.text-right {
+    text-align: right;
+}
 
-    .exam-header .row {
-        text-align: center;
-    }
+.option-radio {
+    display: none;
+}
 
-    .exam-header .col-md-4 {
-        margin-bottom: 0.5rem;
-    }
+/* Responsive Breakpoints */
 
+/* Small devices (landscape phones, 576px and up) */
+@media (max-width: 576px ) {
+    .question-container {
+            min-height: unset;
+        }
+}
+@media (min-width: 576px ) {
+    .exam-header {
+        padding: 1rem 0;
+    }
+    
+    .exam-title {
+        font-size: 1.1rem;
+    }
+    
     .question-card {
-        padding: 1rem;
+        padding: 1.5rem;
     }
-
+    
+    .question-text {
+        font-size: 1.1rem;
+    }
+    
+    .option-text {
+        font-size: 1rem;
+    }
+    
     .completion-card {
-        margin: 1rem;
-        padding: 2rem 1rem;
+        padding: 2.5rem;
+    }
+    
+    .mobile-question-grid {
+        grid-template-columns: repeat(auto-fit, 45px);
+    }
+    
+    .mobile-grid-item {
+        width: 45px;
+        height: 45px;
+    } 
+    .question-container {
+        min-height: unset;
+    }
+   
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    .exam-info {
+        text-align: start;
+    }
+    
+    .question-container {
+        padding: 1.5rem 0;
+    }
+    
+    .question-card {
+        padding: 2rem;
+    }
+    
+    .question-text {
+        font-size: 1.2rem;
+    }
+    
+    .timer {
+        font-size: 1rem;
+        padding: 0.75rem 1.25rem;
+    }
+    
+    .question-counter {
+        font-size: 1rem;
+        padding: 0.75rem 1.25rem;
+    }
+    
+    .completion-title {
+        font-size: 2.25rem;
+    }
+    
+    .completion-message {
+        font-size: 1.125rem;
+    }
+    
+    .btn-nav {
+        min-width: 100px;
+        padding: 0.75rem 1.25rem;
+    }
+    .exam-navigation {
+        position: fixed;
+    }
+     .question-container {
+        min-height: unset;
     }
 }
 
-/* Prevent text selection and drag */
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .question-container {
+        padding: 2rem 0;
+    }
+    
+    .exam-header .timer {
+        text-align: right;
+    }
+    
+    .mobile-question-nav {
+        display: none !important;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .question-card {
+        padding: 2.5rem;
+    }
+    
+    .completion-card {
+        padding: 3rem;
+    }
+}
+
+/* Security & UX */
 * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -934,13 +1337,27 @@ export default {
     -o-user-drag: none;
 }
 
-/* Allow text selection only in input fields */
-input,
-textarea {
+input, textarea {
     -webkit-user-select: text;
     -khtml-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
+}
+
+/* Touch-friendly interactive elements */
+@media (hover: none) and (pointer: coarse) {
+    .option-item {
+        min-height: 48px;
+    }
+    
+    .grid-item, .mobile-grid-item {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .btn-nav {
+        min-height: 44px;
+    }
 }
 </style>
