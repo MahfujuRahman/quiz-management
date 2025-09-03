@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\Management\QuizManagement\QuizParticipation\Models;
+namespace App\Modules\Management\QuizManagement\Quiz\Models;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Model extends EloquentModel
+class QuizParticipation extends EloquentModel
 {
     use SoftDeletes;
     

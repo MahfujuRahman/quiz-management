@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class RegisterForQuiz
 {
-    static $participationModel = \App\Modules\Management\QuizManagement\QuizParticipation\Models\Model::class;
+    static $participationModel = \App\Modules\Management\QuizManagement\Quiz\Models\QuizParticipation::class;
     static $quizModel = \App\Modules\Management\QuizManagement\Quiz\Models\Model::class;
 
     public static function execute($request)

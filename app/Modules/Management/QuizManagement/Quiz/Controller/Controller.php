@@ -142,7 +142,7 @@ class Controller extends ControllersController
 
         $request->validate([
             'quiz_id' => 'required|integer|exists:quizzes,id',
-            'answers' => 'required|array',
+            'answers' => 'nullable|array',
             'duration' => 'required|integer|min:0',
             'submit_reason' => 'sometimes|string|max:255'
         ]);
