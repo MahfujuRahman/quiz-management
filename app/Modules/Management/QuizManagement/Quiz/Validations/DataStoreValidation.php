@@ -52,6 +52,20 @@ class DataStoreValidation extends FormRequest
             'is_negative_marking' => 'required | sometimes',
             'negative_value' => ' sometimes',
             'status' => ['sometimes', Rule::in(['active', 'inactive'])],
+            'slug' => 'required | sometimes | unique:quizzes,slug,' . ($this->id ?? 'NULL') . ',id,deleted_at,NULL',
         ];
     }
-}
+
+    /**
+     * Get custom validation messages.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'slug.required' => 'The Quiz Code field is required.',
+            'slug.unique' => 'The Quiz Code has already been taken. You can choose another one.',
+        ];
+        }
+    }

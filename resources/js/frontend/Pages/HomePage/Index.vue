@@ -234,7 +234,6 @@ export default {
                 const response = await axios.post('/public-quizzes/validate-code', {
                     quiz: this.directQuizId
                 });
-                console.log(response);
                 if (response.data.statusCode == 200) {
                     const data = await response.data.data;
                     this.joinQuiz(data.quiz);
@@ -243,7 +242,7 @@ export default {
                 }
             } catch (error) {
                 console.error('Error validating quiz:', error);
-                window.s_error('সংযোগে সমস্যা হয়েছে');
+                window.s_error(error.response.message || 'পরীক্ষা খুঁজে পাওয়া যায়নি');
             }
         }
     }
