@@ -33,7 +33,7 @@
                                 <small class="text-muted">{{ studentInfo.name }}</small>
                             </div>
                         </div>
-                        
+
                         <!-- Mobile: Question counter in center -->
                         <div class="col-12 col-md-4 order-2 text-center mb-2 mb-md-0">
                             <div class="question-counter">
@@ -41,7 +41,7 @@
                                 {{ currentQuestionIndex + 1 }} / {{ questions.length }}
                             </div>
                         </div>
-                        
+
                         <!-- Mobile: Timer at bottom -->
                         <div class="col-12 col-md-4 order-3 text-center text-md-end">
                             <div class="timer d-inline-flex align-items-center"
@@ -62,9 +62,11 @@
                         <div class="col-12 col-lg-8">
                             <div class="question-card">
                                 <div class="question-header">
-                                    <div class="d-flex flex-row flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+                                    <div
+                                        class="d-flex flex-row flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
                                         <span class="question-number">প্রশ্ন {{ currentQuestionIndex + 1 }}</span>
-                                        <span class="question-type">{{ currentQuestion.is_multiple ? 'একাধিক উত্তর' : 'একক উত্তর' }}</span>
+                                        <span class="question-type">{{ currentQuestion.is_multiple ? 'একাধিক উত্তর' :
+                                            'একক উত্তর' }}</span>
                                         <span class="question-marks">নম্বর: {{ currentQuestion.mark }}</span>
                                     </div>
                                 </div>
@@ -75,23 +77,21 @@
 
                                 <!-- Options -->
                                 <div class="options-container">
-                                    <div v-for="(option, index) in currentQuestion.quiz_question_options" 
-                                         :key="option.id"
-                                         class="option-item" 
-                                         :class="{ 'selected': isOptionSelected(option.id) }"
-                                         @click="selectOption(option.id)">
+                                    <div v-for="(option, index) in currentQuestion.quiz_question_options"
+                                        :key="option.id" class="option-item"
+                                        :class="{ 'selected': isOptionSelected(option.id) }"
+                                        @click="selectOption(option.id)">
                                         <div class="option-selector">
                                             <div class="option-label">
                                                 {{ String.fromCharCode(65 + index) }}
                                             </div>
                                             <div class="option-radio">
                                                 <input :type="currentQuestion.is_multiple ? 'checkbox' : 'radio'"
-                                                       :name="'question_' + currentQuestion.id" 
-                                                       :value="option.id"
-                                                       :checked="isOptionSelected(option.id)"
-                                                       @change="selectOption(option.id)">
+                                                    :name="'question_' + currentQuestion.id" :value="option.id"
+                                                    :checked="isOptionSelected(option.id)"
+                                                    @change="selectOption(option.id)">
                                             </div>
-                                            
+
                                         </div>
                                         <div class="option-content">
                                             <span v-if="option.title" class="option-text">{{ option.title }}</span>
@@ -103,7 +103,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Desktop Sidebar -->
                         <div class="col-lg-4 d-none d-lg-block">
                             <div class="question-grid-sidebar sticky-top">
@@ -111,15 +111,12 @@
                                     <h6><i class="fas fa-th me-2"></i>প্রশ্ন নেভিগেশন</h6>
                                 </div>
                                 <div class="question-grid">
-                                    <button v-for="(question, index) in questions" 
-                                            :key="question.id" 
-                                            class="grid-item" 
-                                            :class="{
-                                                'current': index === currentQuestionIndex,
-                                                'answered': hasAnswer(question.id),
-                                                'unanswered': !hasAnswer(question.id)
-                                            }" 
-                                            @click="goToQuestion(index)">
+                                    <button v-for="(question, index) in questions" :key="question.id" class="grid-item"
+                                        :class="{
+                                            'current': index === currentQuestionIndex,
+                                            'answered': hasAnswer(question.id),
+                                            'unanswered': !hasAnswer(question.id)
+                                        }" @click="goToQuestion(index)">
                                         {{ index + 1 }}
                                     </button>
                                 </div>
@@ -154,15 +151,12 @@
                         </div>
                     </div>
                     <div class="mobile-question-grid">
-                        <button v-for="(question, index) in questions" 
-                                :key="question.id" 
-                                class="mobile-grid-item" 
-                                :class="{
-                                    'current': index === currentQuestionIndex,
-                                    'answered': hasAnswer(question.id),
-                                    'unanswered': !hasAnswer(question.id)
-                                }" 
-                                @click="goToQuestion(index)">
+                        <button v-for="(question, index) in questions" :key="question.id" class="mobile-grid-item"
+                            :class="{
+                                'current': index === currentQuestionIndex,
+                                'answered': hasAnswer(question.id),
+                                'unanswered': !hasAnswer(question.id)
+                            }" @click="goToQuestion(index)">
                             {{ index + 1 }}
                         </button>
                     </div>
@@ -174,35 +168,34 @@
                 <div class="container-fluid px-3">
                     <div class="row align-items-center">
                         <div class="col-6 col-sm-4">
-                            <button class="btn btn-outline-secondary btn-nav" 
-                                    @click="previousQuestion"
-                                    :disabled="currentQuestionIndex === 0">
+                            <button class="btn btn-outline-secondary btn-nav" @click="previousQuestion"
+                                :disabled="currentQuestionIndex === 0">
                                 <i class="fas fa-chevron-left me-2"></i>
                                 <span class="d-none d-sm-inline">পূর্ববর্তী</span>
                                 <span class="d-inline d-sm-none">পূর্ব</span>
                             </button>
                         </div>
-                        
+
                         <div class="col-12 col-sm-4 order-3 order-sm-2 text-center mt-2 mt-sm-0">
                             <div class="question-progress">
                                 <div class="progress-bar-wrapper">
-                                    <div class="progress-bar" :style="{ width: ((currentQuestionIndex + 1) / questions.length) * 100 + '%' }"></div>
+                                    <div class="progress-bar"
+                                        :style="{ width: ((currentQuestionIndex + 1) / questions.length) * 100 + '%' }">
+                                    </div>
                                 </div>
-                                <small class="progress-text">{{ Math.round(((currentQuestionIndex + 1) / questions.length) * 100) }}% সম্পন্ন</small>
+                                <small class="progress-text">{{ Math.round(((currentQuestionIndex + 1) /
+                                    questions.length) * 100) }}% সম্পন্ন</small>
                             </div>
                         </div>
-                        
+
                         <div class="col-6 col-sm-4 order-2 order-sm-3 text-end">
-                            <button v-if="currentQuestionIndex < questions.length - 1" 
-                                    class="btn btn-primary btn-nav" 
-                                    @click="nextQuestion">
+                            <button v-if="currentQuestionIndex < questions.length - 1" class="btn btn-primary btn-nav"
+                                @click="nextQuestion">
                                 <span class="d-none d-sm-inline">পরবর্তী</span>
                                 <span class="d-inline d-sm-none">পর</span>
                                 <i class="fas fa-chevron-right ms-2"></i>
                             </button>
-                            <button v-else 
-                                    class="btn btn-success btn-nav" 
-                                    @click="finishExam">
+                            <button v-else class="btn btn-success btn-nav" @click="finishExam">
                                 <i class="fas fa-check-circle me-2"></i>
                                 <span class="d-none d-sm-inline">পরীক্ষা শেষ</span>
                                 <span class="d-inline d-sm-none">শেষ</span>
@@ -223,7 +216,7 @@
                                 <i class="fas fa-check-circle text-success"></i>
                             </div>
                             <h2 class="completion-title">পরীক্ষা সম্পন্ন!</h2>
-                            <p class="completion-message">{{ completionMessage || 'আপনার উত্তরপত্র সফলভাবে জমা দেওয়া হয়েছে।' }}</p>
+                            <p class="completion-message">{{ completionMessage || 'আপনার উত্তরপত্র সফলভাবে জমা দেওয়াহয়েছে।' }}</p>
 
                             <div class="exam-summary">
                                 <div class="row g-3">
@@ -569,7 +562,7 @@ export default {
                 'হ্যাঁ, শেষ করুন',
                 'question'
             );
-            
+
             if (confirmed) {
                 await this.submitExam('স্বাভাবিক সমাপ্তি');
             }
@@ -605,7 +598,7 @@ export default {
             } catch (error) {
                 console.error('Submit error:', error);
                 let errorMessage = 'সংযোগে সমস্যা';
-                
+
                 if (error.response) {
                     // Server responded with error status
                     if (error.response.status === 400) {
@@ -619,7 +612,7 @@ export default {
                         errorMessage = error.response.data?.message || 'সার্ভার ত্রুটি';
                     }
                 }
-                
+
                 window.s_error(errorMessage);
             }
         },
@@ -671,7 +664,7 @@ export default {
 
         goToHome() {
             sessionStorage.removeItem('examSession');
-            this.$router.push('/');
+            this.$inertia.visit(`/`);
         }
     }
 }
@@ -743,8 +736,15 @@ export default {
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 /* Question Container - Mobile First */
@@ -1205,48 +1205,50 @@ export default {
 /* Responsive Breakpoints */
 
 /* Small devices (landscape phones, 576px and up) */
-@media (max-width: 576px ) {
-    .question-container {
-            min-height: unset;
-        }
-}
-@media (min-width: 576px ) {
-    .exam-header {
-        padding: 1rem 0;
-    }
-    
-    .exam-title {
-        font-size: 1.1rem;
-    }
-    
-    .question-card {
-        padding: 1.5rem;
-    }
-    
-    .question-text {
-        font-size: 1.1rem;
-    }
-    
-    .option-text {
-        font-size: 1rem;
-    }
-    
-    .completion-card {
-        padding: 2.5rem;
-    }
-    
-    .mobile-question-grid {
-        grid-template-columns: repeat(auto-fit, 45px);
-    }
-    
-    .mobile-grid-item {
-        width: 45px;
-        height: 45px;
-    } 
+@media (max-width: 576px) {
     .question-container {
         min-height: unset;
     }
-   
+}
+
+@media (min-width: 576px) {
+    .exam-header {
+        padding: 1rem 0;
+    }
+
+    .exam-title {
+        font-size: 1.1rem;
+    }
+
+    .question-card {
+        padding: 1.5rem;
+    }
+
+    .question-text {
+        font-size: 1.1rem;
+    }
+
+    .option-text {
+        font-size: 1rem;
+    }
+
+    .completion-card {
+        padding: 2.5rem;
+    }
+
+    .mobile-question-grid {
+        grid-template-columns: repeat(auto-fit, 45px);
+    }
+
+    .mobile-grid-item {
+        width: 45px;
+        height: 45px;
+    }
+
+    .question-container {
+        min-height: unset;
+    }
+
 }
 
 /* Medium devices (tablets, 768px and up) */
@@ -1254,45 +1256,47 @@ export default {
     .exam-info {
         text-align: start;
     }
-    
+
     .question-container {
         padding: 1.5rem 0;
     }
-    
+
     .question-card {
         padding: 2rem;
     }
-    
+
     .question-text {
         font-size: 1.2rem;
     }
-    
+
     .timer {
         font-size: 1rem;
         padding: 0.75rem 1.25rem;
     }
-    
+
     .question-counter {
         font-size: 1rem;
         padding: 0.75rem 1.25rem;
     }
-    
+
     .completion-title {
         font-size: 2.25rem;
     }
-    
+
     .completion-message {
         font-size: 1.125rem;
     }
-    
+
     .btn-nav {
         min-width: 100px;
         padding: 0.75rem 1.25rem;
     }
+
     .exam-navigation {
         position: fixed;
     }
-     .question-container {
+
+    .question-container {
         min-height: unset;
     }
 }
@@ -1302,11 +1306,11 @@ export default {
     .question-container {
         padding: 2rem 0;
     }
-    
+
     .exam-header .timer {
         text-align: right;
     }
-    
+
     .mobile-question-nav {
         display: none !important;
     }
@@ -1317,7 +1321,7 @@ export default {
     .question-card {
         padding: 2.5rem;
     }
-    
+
     .completion-card {
         padding: 3rem;
     }
@@ -1337,7 +1341,8 @@ export default {
     -o-user-drag: none;
 }
 
-input, textarea {
+input,
+textarea {
     -webkit-user-select: text;
     -khtml-user-select: text;
     -moz-user-select: text;
@@ -1350,12 +1355,13 @@ input, textarea {
     .option-item {
         min-height: 48px;
     }
-    
-    .grid-item, .mobile-grid-item {
+
+    .grid-item,
+    .mobile-grid-item {
         min-width: 44px;
         min-height: 44px;
     }
-    
+
     .btn-nav {
         min-height: 44px;
     }

@@ -147,7 +147,10 @@ class Controller extends ControllersController
             'submit_reason' => 'sometimes|string|max:255'
         ]);
 
-        return SubmitQuizExam::execute($request, $sessionToken);
+        $data = SubmitQuizExam::execute($request, $sessionToken);
+
+        
+        return $data;
     }
 
     public function export_results(Request $request, $quizId)
