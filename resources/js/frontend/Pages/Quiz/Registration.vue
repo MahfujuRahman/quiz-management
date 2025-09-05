@@ -233,6 +233,18 @@ export default {
             const startTime = moment(this.quiz.exam_start_datetime);
             const endTime = moment(this.quiz.exam_end_datetime);
             return now.isAfter(startTime) && now.isBefore(endTime);
+        },
+         StartExamTime() {
+            if (!this.quiz) return false;
+            const now = moment();
+            const startTime = moment(this.quiz.exam_start_datetime);
+            return now.isBefore(startTime);
+        },
+        EndExamTime() {
+            if (!this.quiz) return false;
+            const now = moment();
+            const endTime = moment(this.quiz.exam_end_datetime);
+            return now.isAfter(endTime);
         }
     },
 
@@ -288,11 +300,14 @@ export default {
         },
 
         async submitRegistration() {
-            if (!this.canStartExam) {
+            if (this.StartExamTime) {
                 window.s_alert('পরীক্ষা এখনও শুরু হয়নি', 'warning');
                 return;
             }
-
+            if (this.EndExamTime) {
+                window.s_alert('পরীক্ষা ইতিমধ্যে শেষ হয়েছে', 'warning');
+                return;
+            }
             try {
                 this.loading = true;
 

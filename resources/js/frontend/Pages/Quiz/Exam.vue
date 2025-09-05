@@ -216,7 +216,7 @@
                                 <i class="fas fa-check-circle text-success"></i>
                             </div>
                             <h2 class="completion-title">পরীক্ষা সম্পন্ন!</h2>
-                            <p class="completion-message">{{ completionMessage || 'আপনার উত্তরপত্র সফলভাবে জমা দেওয়াহয়েছে।' }}</p>
+                            <p class="completion-message">{{ completionMessage || 'আপনার উত্তরপত্র সফলভাবে জমাদেওয়াহয়েছে।' }}</p>
 
                             <div class="exam-summary">
                                 <div class="row g-3">
@@ -291,10 +291,35 @@ export default {
             warningCountdown: 0,
             warningTimer: null,
             completionMessage: '',
+            // Security tracking with persistence
             tabSwitchCount: 0,
             maxTabSwitches: 3,
             fullscreenExitCount: 0,
-            maxFullscreenExits: 2
+            maxFullscreenExits: 2,
+            screenshotAttempts: 0,
+            maxScreenshotAttempts: 2,
+            keyboardViolations: 0,
+            maxKeyboardViolations: 5,
+            // Tab absence tracking
+            tabAwayStartTime: null,
+            tabAwayTimer: null,
+            maxTabAwayTime: 5000, // 5 seconds
+            isTabAway: false,
+            // Blur tracking
+            windowBlurCount: 0,
+            maxWindowBlurs: 3,
+            // Console detection
+            consoleCheckInterval: null,
+            // Network monitoring
+            networkRequestCount: 0,
+            maxNetworkRequests: 10,
+            // Copy/paste attempts
+            copyPasteAttempts: 0,
+            maxCopyPasteAttempts: 3,
+            // Security state key for persistence
+            securityStateKey: null,
+            // Performance optimization
+            saveStateTimeout: null
         }
     },
 
@@ -318,13 +343,20 @@ export default {
 
     async created() {
         await this.initializeExam();
+        this.initializeSecurityState();
         this.setupSecurityMeasures();
     },
 
     mounted() {
         this.enterFullscreen();
-        document.addEventListener('visibilitychange', this.handleVisibilityChange);
-        document.addEventListener('keydown', this.preventKeyboardShortcuts);
+        this.setupEventListeners();
+
+        // Delayed initialization of heavy security features
+        setTimeout(() => {
+            this.startConsoleDetection();
+            this.detectDevTools();
+            this.monitorNetworkRequests();
+        }, 1000); // Delay heavy security by 1 second
     },
 
     beforeUnmount() {
@@ -342,12 +374,14 @@ export default {
                     return;
                 }
 
+                // Create unique security state key for this exam session
+                this.securityStateKey = `examSecurity_${quizId}_${sessionToken.substring(0, 10)}`;
+
                 const response = await axios.get(`/quizzes/quiz_questions?quiz_id=${quizId}`, {
                     headers: {
                         'Authorization': `Bearer ${sessionToken}`
                     }
                 });
-
 
                 if (response.data.statusCode === 200) {
                     const data = response.data.data;
@@ -365,6 +399,84 @@ export default {
                 console.error('Exam initialization error:', error);
                 window.s_error('সংযোগে সমস্যা');
             }
+        },
+
+        initializeSecurityState() {
+            try {
+                const savedState = localStorage.getItem(this.securityStateKey);
+                if (savedState) {
+                    const securityData = JSON.parse(savedState);
+                    this.tabSwitchCount = securityData.tabSwitchCount || 0;
+                    this.fullscreenExitCount = securityData.fullscreenExitCount || 0;
+                    this.screenshotAttempts = securityData.screenshotAttempts || 0;
+                    this.keyboardViolations = securityData.keyboardViolations || 0;
+                    this.windowBlurCount = securityData.windowBlurCount || 0;
+                    this.copyPasteAttempts = securityData.copyPasteAttempts || 0;
+                    this.networkRequestCount = securityData.networkRequestCount || 0;
+                }
+            } catch (error) {
+                console.warn('Failed to load security state:', error);
+            }
+        },
+
+        saveSecurityState() {
+            // Throttle security state saving to reduce localStorage writes
+            if (this.saveStateTimeout) {
+                clearTimeout(this.saveStateTimeout);
+            }
+
+            this.saveStateTimeout = setTimeout(() => {
+                try {
+                    const securityData = {
+                        tabSwitchCount: this.tabSwitchCount,
+                        fullscreenExitCount: this.fullscreenExitCount,
+                        screenshotAttempts: this.screenshotAttempts,
+                        keyboardViolations: this.keyboardViolations,
+                        windowBlurCount: this.windowBlurCount,
+                        copyPasteAttempts: this.copyPasteAttempts,
+                        networkRequestCount: this.networkRequestCount,
+                        lastUpdate: Date.now()
+                    };
+                    localStorage.setItem(this.securityStateKey, JSON.stringify(securityData));
+                } catch (error) {
+                    console.warn('Failed to save security state:', error);
+                }
+            }, 100); // Throttle to max 10 writes per second
+        },
+
+        setupEventListeners() {
+            // Essential event listeners only
+            document.addEventListener('visibilitychange', this.handleVisibilityChange);
+            document.addEventListener('keydown', this.preventKeyboardShortcuts);
+            document.addEventListener('fullscreenchange', this.handleFullscreenChange);
+
+            // Optional listeners with throttling
+            let blurTimeout;
+            window.addEventListener('blur', () => {
+                clearTimeout(blurTimeout);
+                blurTimeout = setTimeout(() => {
+                    this.handleWindowBlur();
+                }, 100); // Throttle blur events
+            });
+
+            // Basic security events
+            document.addEventListener('contextmenu', this.preventContextMenu);
+            document.addEventListener('selectstart', this.preventSelection);
+            document.addEventListener('dragstart', this.preventDrag);
+
+            // Copy/paste with throttling
+            let copyPasteTimeout;
+            const throttledCopyPaste = (handler) => (e) => {
+                clearTimeout(copyPasteTimeout);
+                copyPasteTimeout = setTimeout(() => handler(e), 50);
+            };
+
+            document.addEventListener('copy', throttledCopyPaste(this.handleCopyAttempt));
+            document.addEventListener('paste', throttledCopyPaste(this.handlePasteAttempt));
+            document.addEventListener('cut', throttledCopyPaste(this.handleCutAttempt));
+
+            // Page unload warning
+            window.addEventListener('beforeunload', this.handleBeforeUnload);
         },
 
         startExam() {
@@ -417,38 +529,126 @@ export default {
         },
 
         setupSecurityMeasures() {
-            // Prevent right-click context menu
-            document.addEventListener('contextmenu', e => e.preventDefault());
+            // Additional security hardening
+            this.disableContextMenu();
+            this.preventTextSelection();
+            this.blockKeyboardShortcuts();
+            this.hideScrollbars();
+            this.preventZoom();
+        },
 
-            // Prevent text selection and drag
-            document.addEventListener('selectstart', e => e.preventDefault());
-            document.addEventListener('dragstart', e => e.preventDefault());
+        disableContextMenu() {
+            document.addEventListener('contextmenu', this.preventContextMenu);
+        },
 
-            // Prevent screenshots (partial prevention)
-            document.addEventListener('keydown', this.preventScreenshot);
+        preventContextMenu(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.logSecurityViolation('Context menu access attempt');
+            return false;
+        },
 
-            // Disable copy, paste, cut
-            document.addEventListener('copy', e => e.preventDefault());
-            document.addEventListener('paste', e => e.preventDefault());
-            document.addEventListener('cut', e => e.preventDefault());
+        preventTextSelection() {
+            document.addEventListener('selectstart', this.preventSelection);
+            document.addEventListener('dragstart', this.preventDrag);
+        },
+
+        preventSelection(e) {
+            if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        },
+
+        preventDrag(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        },
+
+        blockKeyboardShortcuts() {
+            document.addEventListener('keydown', this.preventKeyboardShortcuts);
+        },
+
+        hideScrollbars() {
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+        },
+
+        preventZoom() {
+            const self = this; // Store reference to component instance
+
+            document.addEventListener('wheel', (e) => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    self.logSecurityViolation('Zoom attempt detected');
+                }
+            }, { passive: false });
+
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '-' || e.key === '0')) {
+                    e.preventDefault();
+                    self.logSecurityViolation('Keyboard zoom attempt');
+                }
+            });
         },
 
         preventKeyboardShortcuts(e) {
             // Prevent common shortcuts
             if (e.ctrlKey || e.metaKey) {
-                if (['c', 'v', 'x', 'a', 's', 'p', 'u', 'r', 'f', 'h', 'i', 'j', 'k', 'l', 'd', 't', 'w', 'n'].includes(e.key.toLowerCase())) {
+                const forbiddenKeys = ['c', 'v', 'x', 'a', 's', 'p', 'u', 'r', 'f', 'h', 'i', 'j', 'k', 'l', 'd', 't', 'w', 'n', 'e', 'o', 'z', 'y'];
+                if (forbiddenKeys.includes(e.key.toLowerCase())) {
                     e.preventDefault();
+                    e.stopPropagation();
+
+                    this.keyboardViolations++;
+                    this.saveSecurityState();
+                    this.logSecurityViolation(`Keyboard shortcut blocked: Ctrl+${e.key}`);
+
+                    if (this.keyboardViolations >= this.maxKeyboardViolations) {
+                        this.autoSubmitExam('অতিরিক্ত কীবোর্ড শর্টকাট ব্যবহার');
+                    }
+                    return false;
                 }
             }
 
-            // Prevent F12, F5, etc.
-            if ([112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123].includes(e.keyCode)) {
+            // Prevent F-keys
+            if (e.keyCode >= 112 && e.keyCode <= 123) {
                 e.preventDefault();
+                e.stopPropagation();
+
+                this.keyboardViolations++;
+                this.saveSecurityState();
+                this.logSecurityViolation(`Function key blocked: F${e.keyCode - 111}`);
+
+                // F12 is particularly suspicious (DevTools)
+                if (e.keyCode === 123) {
+                    this.autoSubmitExam('DevTools অ্যাক্সেসের চেষ্টা');
+                }
+                return false;
             }
 
             // Prevent Alt+Tab, Alt+F4
             if (e.altKey && ['Tab', 'F4'].includes(e.key)) {
                 e.preventDefault();
+                e.stopPropagation();
+
+                this.keyboardViolations++;
+                this.saveSecurityState();
+                this.logSecurityViolation(`Alt combination blocked: Alt+${e.key}`);
+                return false;
+            }
+
+            // Prevent Escape key
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+
+                this.keyboardViolations++;
+                this.saveSecurityState();
+                this.logSecurityViolation('Escape key blocked');
+                return false;
             }
         },
 
@@ -457,20 +657,139 @@ export default {
             if ((e.ctrlKey && e.shiftKey && e.key === 'S') ||
                 (e.key === 'PrintScreen') ||
                 (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key))) {
+
                 e.preventDefault();
-                this.autoSubmitExam('স্ক্রিনশট নেওয়ার চেষ্টা করা হয়েছে');
+                e.stopPropagation();
+
+                this.screenshotAttempts++;
+                this.saveSecurityState();
+                this.logSecurityViolation('Screenshot attempt detected');
+
+                if (this.screenshotAttempts >= this.maxScreenshotAttempts) {
+                    this.autoSubmitExam('স্ক্রিনশট নেওয়ার চেষ্টা করা হয়েছে');
+                } else {
+                    this.showWarning(`স্ক্রিনশট নিষিদ্ধ! আরও ${this.maxScreenshotAttempts - this.screenshotAttempts} বার চেষ্টা করলে পরীক্ষা জমা হয়ে যাবে।`);
+                }
+                return false;
             }
         },
 
         handleVisibilityChange() {
-            if (document.hidden && this.examStarted && !this.examCompleted) {
+            if (document.hidden) {
+                // Tab became hidden
+                this.isTabAway = true;
+                this.tabAwayStartTime = Date.now();
+
+                // Start the 5-second timer
+                this.tabAwayTimer = setTimeout(() => {
+                    if (this.isTabAway && this.examStarted && !this.examCompleted) {
+                        this.autoSubmitExam('৫ সেকেন্ডের বেশি ট্যাব থেকে দূরে থাকা');
+                    }
+                }, this.maxTabAwayTime);
+
                 this.tabSwitchCount++;
+                this.saveSecurityState();
+                this.logSecurityViolation('Tab switch detected');
 
                 if (this.tabSwitchCount >= this.maxTabSwitches) {
                     this.autoSubmitExam('অনুমোদিত সংখ্যক ট্যাব পরিবর্তনের সীমা অতিক্রম');
-                } else {
-                    this.showWarning(`ট্যাব পরিবর্তন সনাক্ত! আরো ${this.maxTabSwitches - this.tabSwitchCount} বার পরিবর্তন করলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে।`);
                 }
+            } else {
+                // Tab became visible
+                this.isTabAway = false;
+
+                // Clear the timer if user comes back before 5 seconds
+                if (this.tabAwayTimer) {
+                    clearTimeout(this.tabAwayTimer);
+                    this.tabAwayTimer = null;
+                }
+
+                // Calculate how long they were away
+                if (this.tabAwayStartTime) {
+                    const awayDuration = Date.now() - this.tabAwayStartTime;
+                    this.logSecurityViolation(`Tab returned after ${awayDuration}ms`);
+
+                    // If they were away for less than 5 seconds, show warning
+                    if (awayDuration < this.maxTabAwayTime && this.examStarted && !this.examCompleted) {
+                        const remainingAttempts = this.maxTabSwitches - this.tabSwitchCount;
+                        if (remainingAttempts > 0) {
+                            this.showWarning(`ট্যাব পরিবর্তন সনাক্ত! আরো ${remainingAttempts} বার পরিবর্তন করলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে।`);
+                        }
+                    }
+                }
+
+                this.tabAwayStartTime = null;
+            }
+        },
+
+        handleWindowBlur() {
+            this.windowBlurCount++;
+            this.saveSecurityState();
+            this.logSecurityViolation('Window lost focus');
+
+            if (this.windowBlurCount >= this.maxWindowBlurs) {
+                this.autoSubmitExam('উইন্ডো ফোকাস হারানোর সীমা অতিক্রম');
+            }
+        },
+
+        handleWindowFocus() {
+            this.logSecurityViolation('Window regained focus');
+        },
+
+        handleMouseLeave() {
+            this.logSecurityViolation('Mouse left window area');
+        },
+
+        handleCopyAttempt(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.copyPasteAttempts++;
+            this.saveSecurityState();
+            this.logSecurityViolation('Copy attempt blocked');
+
+            if (this.copyPasteAttempts >= this.maxCopyPasteAttempts) {
+                this.autoSubmitExam('কপি/পেস্ট চেষ্টার সীমা অতিক্রম');
+            }
+            return false;
+        },
+
+        handlePasteAttempt(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.copyPasteAttempts++;
+            this.saveSecurityState();
+            this.logSecurityViolation('Paste attempt blocked');
+
+            if (this.copyPasteAttempts >= this.maxCopyPasteAttempts) {
+                this.autoSubmitExam('কপি/পেস্ট চেষ্টার সীমা অতিক্রম');
+            }
+            return false;
+        },
+
+        handleCutAttempt(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.copyPasteAttempts++;
+            this.saveSecurityState();
+            this.logSecurityViolation('Cut attempt blocked');
+
+            if (this.copyPasteAttempts >= this.maxCopyPasteAttempts) {
+                this.autoSubmitExam('কপি/পেস্ট চেষ্টার সীমা অতিক্রম');
+            }
+            return false;
+        },
+
+        handleBeforeUnload(e) {
+            if (this.examStarted && !this.examCompleted) {
+                e.preventDefault();
+                e.returnValue = 'পরীক্ষা চলমান। পেজ ছেড়ে গেলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে।';
+
+                // Auto-submit on page unload attempt
+                setTimeout(() => {
+                    this.autoSubmitExam('পেজ আনলোডের চেষ্টা');
+                }, 100);
+
+                return e.returnValue;
             }
         },
 
@@ -490,11 +809,15 @@ export default {
         handleFullscreenChange() {
             if (!document.fullscreenElement && this.examStarted && !this.examCompleted) {
                 this.fullscreenExitCount++;
+                this.saveSecurityState();
+                this.logSecurityViolation('Fullscreen mode exited');
 
                 if (this.fullscreenExitCount >= this.maxFullscreenExits) {
                     this.autoSubmitExam('ফুলস্ক্রিন মোড থেকে বের হওয়া');
                 } else {
-                    this.showWarning('ফুলস্ক্রিন মোড বজায় রাখুন!');
+                    this.showWarning(`ফুলস্ক্রিন মোড বজায় রাখুন! আরও ${this.maxFullscreenExits - this.fullscreenExitCount} বার বের হলে পরীক্ষা জমা হয়ে যাবে।`);
+
+                    // Try to re-enter fullscreen after a short delay
                     setTimeout(() => {
                         try {
                             this.enterFullscreen();
@@ -503,6 +826,116 @@ export default {
                         }
                     }, 1000);
                 }
+            }
+        },
+
+        startConsoleDetection() {
+            const self = this; // Store reference to component instance
+
+            // Detect DevTools opening - reduced frequency
+            this.consoleCheckInterval = setInterval(() => {
+                const threshold = 160;
+                if (window.outerHeight - window.innerHeight > threshold ||
+                    window.outerWidth - window.innerWidth > threshold) {
+                    self.logSecurityViolation('DevTools possibly opened (size detection)');
+                    self.autoSubmitExam('DevTools খোলার সন্দেহ');
+                }
+            }, 3000); // Reduced from 1000ms to 3000ms
+
+            // Simplified console override - only override log
+            const originalLog = console.log;
+            console.log = function (...args) {
+                self.logSecurityViolation('Console.log accessed');
+                // Don't call original to prevent console usage
+            };
+
+            // Remove the problematic console object override
+            // This was causing performance issues
+        },
+
+        monitorNetworkRequests() {
+            const self = this; // Store reference to component instance
+
+            // Simplified network monitoring - only monitor fetch, not XMLHttpRequest
+            // XMLHttpRequest override was causing conflicts
+
+            // Override fetch only
+            const originalFetch = window.fetch;
+            window.fetch = function (url, options = {}) {
+                // Allow more URLs to prevent blocking legitimate requests
+                const allowedPatterns = ['/quizzes/', '/api/exam/', '/api/', 'localhost', '127.0.0.1'];
+                const isAllowed = allowedPatterns.some(pattern =>
+                    typeof url === 'string' && url.includes(pattern)
+                );
+
+                if (!isAllowed && typeof url === 'string' && url.startsWith('http')) {
+                    self.networkRequestCount++;
+                    self.saveSecurityState();
+                    self.logSecurityViolation(`Unauthorized fetch request: ${url}`);
+
+                    if (self.networkRequestCount >= self.maxNetworkRequests) {
+                        self.autoSubmitExam('অননুমোদিত নেটওয়ার্ক রিকোয়েস্ট');
+                    }
+                    return Promise.reject(new Error('Unauthorized network request blocked'));
+                }
+
+                return originalFetch.apply(this, arguments);
+            };
+        },
+
+        detectDevTools() {
+            // Simplified DevTools detection with better performance
+            const self = this; // Store reference to component instance
+
+            let devtools = {
+                open: false
+            };
+
+            // Method 1: Window size detection - reduced frequency
+            const threshold = 160;
+            setInterval(() => {
+                if (window.outerHeight - window.innerHeight > threshold ||
+                    window.outerWidth - window.innerWidth > threshold) {
+                    if (!devtools.open) {
+                        devtools.open = true;
+                        self.logSecurityViolation('DevTools detected - window size method');
+                        self.autoSubmitExam('ডেভেলপার টুলস খোলা হয়েছে');
+                    }
+                } else {
+                    devtools.open = false;
+                }
+            }, 2000); // Reduced from 500ms to 2000ms
+
+            // Method 2: Simplified debugger detection - less frequent
+            setInterval(() => {
+                const before = Date.now();
+                // debugger;
+                const after = Date.now();
+                if (after - before > 100) {
+                    self.logSecurityViolation('DevTools detected - debugger method');
+                    self.autoSubmitExam('ডেভেলপার টুলস সনাক্ত');
+                }
+            }, 5000); // Reduced from 1000ms to 5000ms
+
+            // Remove problematic property detection as it causes performance issues
+        },
+
+        logSecurityViolation(violation) {
+            try {
+                const timestamp = new Date().toISOString();
+                console.warn(`[SECURITY VIOLATION] ${timestamp}: ${violation}`);
+
+                // Store violation in session for potential reporting
+                const violations = JSON.parse(sessionStorage.getItem('securityViolations') || '[]');
+                violations.push({
+                    timestamp,
+                    violation,
+                    userAgent: navigator.userAgent,
+                    url: window.location.href
+                });
+                sessionStorage.setItem('securityViolations', JSON.stringify(violations));
+            } catch (error) {
+                console.error('Failed to log security violation:', error);
             }
         },
 
@@ -576,11 +1009,26 @@ export default {
                 this.examDuration = moment().diff(this.examStartTime, 'seconds');
 
                 const sessionToken = sessionStorage.getItem('examSession');
+
+                // Include security violations in submission
+                const violations = JSON.parse(sessionStorage.getItem('securityViolations') || '[]');
+                const securityData = {
+                    tabSwitchCount: this.tabSwitchCount,
+                    fullscreenExitCount: this.fullscreenExitCount,
+                    screenshotAttempts: this.screenshotAttempts,
+                    keyboardViolations: this.keyboardViolations,
+                    windowBlurCount: this.windowBlurCount,
+                    copyPasteAttempts: this.copyPasteAttempts,
+                    networkRequestCount: this.networkRequestCount,
+                    violations: violations
+                };
+
                 const response = await axios.post('/quizzes/submit_exam', {
                     quiz_id: this.quiz.id,
                     answers: this.answers,
                     duration: this.examDuration,
-                    submit_reason: reason
+                    submit_reason: reason,
+                    security_data: securityData
                 }, {
                     headers: {
                         'Authorization': `Bearer ${sessionToken}`
@@ -607,6 +1055,10 @@ export default {
                         sessionStorage.removeItem('examSession');
                         this.$router.push('/quiz-register');
                         return;
+                    } else if (error.response.data.status === "already_submitted") {
+                        errorMessage = 'আপনি ইতিমধ্যে এই পরীক্ষাটি জমা দিয়েছেন।';
+                        this.examCompleted = true;
+                        this.cleanupExam();
                     } else {
                         errorMessage = error.response.data?.message || 'সার্ভার ত্রুটি';
                     }
@@ -617,16 +1069,40 @@ export default {
         },
 
         cleanupExam() {
+            // Clear all timers
             if (this.timer) {
                 clearInterval(this.timer);
             }
             if (this.warningTimer) {
                 clearInterval(this.warningTimer);
             }
+            if (this.tabAwayTimer) {
+                clearTimeout(this.tabAwayTimer);
+            }
+            if (this.consoleCheckInterval) {
+                clearInterval(this.consoleCheckInterval);
+            }
+            if (this.saveStateTimeout) {
+                clearTimeout(this.saveStateTimeout);
+            }
 
+            // Remove all event listeners
             document.removeEventListener('visibilitychange', this.handleVisibilityChange);
             document.removeEventListener('keydown', this.preventKeyboardShortcuts);
             document.removeEventListener('fullscreenchange', this.handleFullscreenChange);
+            document.removeEventListener('contextmenu', this.preventContextMenu);
+            document.removeEventListener('selectstart', this.preventSelection);
+            document.removeEventListener('dragstart', this.preventDrag);
+            window.removeEventListener('beforeunload', this.handleBeforeUnload);
+
+            // Restore normal page behavior
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+
+            // Clear security state from localStorage
+            if (this.securityStateKey) {
+                localStorage.removeItem(this.securityStateKey);
+            }
 
             // Exit fullscreen safely
             try {

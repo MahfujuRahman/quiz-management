@@ -17,7 +17,6 @@ class SubmitQuizExam
             $duration = $request->input('duration');
             $submitReason = $request->input('submit_reason', 'Normal completion');
 
-
             // Validate that the quiz exists and is active
             $participation = self::$participationModel::query()
                 ->where('quiz_id', $quizId)
@@ -63,7 +62,7 @@ class SubmitQuizExam
                 'percentage' => $percentage,
                 'duration' => $duration,
                 'submit_reason' => $submitReason,
-                'submitted_at' => Carbon::now(),
+                'submitted_at' =>  $now,
                 'is_completed' => true,
                 'is_passed' => $isPassed
             ]);
@@ -86,7 +85,7 @@ class SubmitQuizExam
 
     private static function calculateMarks($quiz, $answers)
     {
-    
+
         $totalMarks = 0;
         $negativeMarking = $quiz->is_negative_marking;
         $negativeValue = $quiz->negative_value ?? 0;
