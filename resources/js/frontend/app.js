@@ -28,5 +28,5 @@ createInertiaApp({
         app.mount(el);
     },
 
-    title: (title) => `Boiler Template : ${title}`,
+    title: (title) => `${title}`,
 });

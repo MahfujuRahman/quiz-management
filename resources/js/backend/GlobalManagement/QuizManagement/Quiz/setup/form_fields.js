@@ -93,6 +93,13 @@ export default [
     row_col_class: "col-12",
   },
   {
+    name: "image",
+    label: "Upload your Quiz Image",
+    type: "file",
+    value: "",
+    row_col_class: "col-12",
+  },
+  {
     name: "description",
     label: "Enter your description",
     type: "textarea",

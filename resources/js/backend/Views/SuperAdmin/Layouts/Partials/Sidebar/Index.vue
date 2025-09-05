@@ -13,35 +13,25 @@
 
     <div class="text-center mt-3">
       <img class="rounded-circle p-1" height="70" width="70" :src="`${auth_info.image ?? 'avatar.png'}`" alt="" />
-      <p class="mt-2">Mr. {{ auth_info.first_name }}  {{ auth_info.last_name }}</p>
+      <p class="mt-2">Mr. {{ auth_info.first_name }} {{ auth_info.last_name }}</p>
     </div>
     <hr />
     <ul class="metismenu" id="menu">
       <side-bar-single-menu :icon="`zmdi zmdi-view-dashboard`" :menu_title="`Dashboard`"
         :route_name="`adminDashboard`" />
       <!-- Management start -->
-        <side-bar-single-menu :icon="`zmdi zmdi-account`" :menu_title="`User Management`"
-        :route_name="`AllUser`" />
-     
-      
+      <side-bar-single-menu :icon="`zmdi zmdi-account`" :menu_title="`User Management`" :route_name="`AllUser`" />
+
+
       <side-bar-single-menu :icon="`zmdi zmdi-label`" :menu_title="`Quiz Topic`" :route_name="`AllQuizQuestionTopic`" />
       <side-bar-single-menu :icon="`zmdi zmdi-edit`" :menu_title="`Quiz Question`" :route_name="`AllQuizQuestion`" />
       <side-bar-single-menu :icon="`zmdi zmdi-collection-text`" :menu_title="`All Quiz`" :route_name="`AllQuiz`" />
-      <side-bar-single-menu :icon="`zmdi zmdi-chart`" :menu_title="`Quiz Result`" :route_name="`AllQuizSubmissionResult`" />
+      <!-- <side-bar-single-menu :icon="`zmdi zmdi-chart`" :menu_title="`Quiz Result`" :route_name="`AllQuizSubmissionResult`" /> -->
+      <side-bar-single-menu :icon="`zmdi zmdi-chart`" :menu_title="`Quiz Participation`"
+        :route_name="`AllQuizParticipation`" />
 
-    
-<side-bar-drop-down-menus
-        :icon="`fa fa-plus`"
-        :menu_title="`QuizManagement`"
-        :menus="[
-          {
-            route_name: `AllQuizParticipation`,
-            title: `QuizParticipation`,
-            icon: `zmdi zmdi-dot-circle-alt`,
-          },
-        ]"
-/>
-<!-- Management end -->
+
+      <!-- Management end -->
     </ul>
   </div>
 </template>

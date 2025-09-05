@@ -6,6 +6,8 @@
                     <!-- Quiz Info Card -->
                     <div class="card shadow-lg mb-4" v-if="quiz">
                         <div class="card-header bg-primary text-white text-center">
+                            <img v-if="quiz.image" :src="quiz.image" alt="Quiz Image" class="img-fluid mb-3"
+                                style="max-height: 250px; object-fit: cover; border-radius: 10px;">
                             <h3 class="mb-0">{{ quiz.title }}</h3>
                             <small>পরীক্ষা নিবন্ধন</small>
                         </div>
@@ -139,6 +141,10 @@
                                         <ul class="list-unstyled mb-0">
                                             <li><i class="fas fa-check text-success"></i> পরীক্ষার সময় অন্য ট্যাব খোলা
                                                 যাবে না</li>
+                                            <li><i class="fas fa-check text-success"></i> ২ বারের বেশি অন্য ট্যাব খুললে স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে</li>
+                                            <li><i class="fas fa-check text-success"></i> ৫ সেকেন্ডের বেশি বাইরে থাকলে
+                                                স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
+                                            </li>
                                             <li><i class="fas fa-check text-success"></i> স্ক্রিনশট নেওয়া যাবে না</li>
                                             <li><i class="fas fa-check text-success"></i> টেক্সট কপি করা যাবে না</li>
                                             <li><i class="fas fa-check text-success"></i> সময় শেষ হলে স্বয়ংক্রিয়ভাবে

@@ -9,26 +9,31 @@ class UpdateData
 {
     static $model = \App\Modules\Management\QuizManagement\Quiz\Models\Model::class;
 
-    public static function execute($request,$slug)
+    public static function execute($request, $slug)
     {
         try {
             if (!$data = self::$model::query()->where('slug', $slug)->first()) {
-                return messageResponse('Data not found...',$data, 404, 'error');
+                return messageResponse('Data not found...', $data, 404, 'error');
             }
-            
+
             // Use all() instead of validated() to include quiz_questions
             $requestData = $request->all();
-            
+
             // Remove quiz_questions from main data to avoid column error
             $quizQuestions = $requestData['quiz_questions'] ?? [];
             unset($requestData['quiz_questions']);
 
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $requestData['image'] = uploader($image, 'uploads/quiz');
+            }
+
             // Update main quiz data
             $data->update($requestData);
-            
+
             // Debug: Check quiz questions to sync
             Log::info('Quiz questions to sync (update): ', $quizQuestions);
-            
+
             // Try manual DB insert as alternative to sync
             if (!empty($quizQuestions)) {
                 try {
@@ -57,10 +62,10 @@ class UpdateData
                 // If no questions provided, detach all
                 $data->quiz_questions()->detach();
             }
-            
-            return messageResponse('Item updated successfully',$data, 201);
+
+            return messageResponse('Item updated successfully', $data, 201);
         } catch (\Exception $e) {
-            return messageResponse($e->getMessage(),[], 500, 'server_error');
+            return messageResponse($e->getMessage(), [], 500, 'server_error');
         }
     }
 }
