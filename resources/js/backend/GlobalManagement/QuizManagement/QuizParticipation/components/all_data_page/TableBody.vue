@@ -32,6 +32,16 @@
           </a>
         </template>
       </td>
+      <td v-else-if="row_item === 'is_completed'" class="text-wrap max-w-120">
+        <span :class="item[row_item] ? 'text-success' : 'text-danger'">
+          {{ item[row_item] ? 'Yes' : 'No' }}
+        </span>
+      </td>
+      <td v-else-if="row_item === 'is_passed'" class="text-wrap max-w-120">
+        <span :class="item[row_item] ? 'text-success' : 'text-danger'">
+          {{ item[row_item] ? 'Yes' : 'No' }}
+        </span>
+      </td>
       <td v-else class="text-wrap max-w-120">
         {{ trim_content(item[row_item], row_item) }}
       </td>

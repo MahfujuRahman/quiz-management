@@ -28,9 +28,9 @@ class SubmitQuizExam
                 return messageResponse('Invalid session', [], 401, 'invalid_session');
             }
 
-            // if ($participation->is_completed) {
-            //     return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
-            // }
+            if ($participation->is_completed) {
+                return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
+            }
 
             // Get quiz details for marking
             $quiz = self::$quizModel::with('quiz_questions.quiz_question_options')

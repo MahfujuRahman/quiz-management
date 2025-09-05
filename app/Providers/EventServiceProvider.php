@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Queue\Events\JobQueued;
 use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
@@ -20,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         \App\Events\UserActivityEvent::class => [
             \App\Listeners\LogUserActivity::class,
+        ],
+        JobQueued::class => [
+            \App\Listeners\StartQueueWorker::class,
         ],
     ];
 

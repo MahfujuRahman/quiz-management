@@ -2,8 +2,8 @@
 
 namespace App\Modules\Management\QuizManagement\Quiz\Controller;
 
-use App\Modules\Management\QuizManagement\Quiz\Others\SubmitQuizJob;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Controller as ControllersController;
 use App\Modules\Management\QuizManagement\Quiz\Actions\StoreData;
 use App\Modules\Management\QuizManagement\Quiz\Actions\GetAllData;
@@ -14,6 +14,7 @@ use App\Modules\Management\QuizManagement\Quiz\Actions\BulkActions;
 use App\Modules\Management\QuizManagement\Quiz\Actions\DestroyData;
 use App\Modules\Management\QuizManagement\Quiz\Actions\RestoreData;
 use App\Modules\Management\QuizManagement\Quiz\Actions\UpdateStatus;
+use App\Modules\Management\QuizManagement\Quiz\Others\SubmitQuizJob;
 use App\Modules\Management\QuizManagement\Quiz\Actions\GetSingleData;
 use App\Modules\Management\QuizManagement\Quiz\Actions\QuizQuestions;
 use App\Modules\Management\QuizManagement\Quiz\Actions\StartQuizExam;
@@ -136,7 +137,7 @@ class Controller extends ControllersController
     public function submit_quiz(Request $request)
     {
         $sessionToken = $request->header('Authorization') ? str_replace('Bearer ', '', $request->header('Authorization')) : null;
-        
+
         // Also check X-Session-Token header as fallback
         if (!$sessionToken) {
             $sessionToken = $request->header('X-Session-Token');
@@ -156,7 +157,7 @@ class Controller extends ControllersController
         try {
             // Generate unique submission ID for tracking
             $submissionId = uniqid('quiz_submit_', true);
-            
+
             // Quick validation before queuing - be more flexible with status
             $participationModel = \App\Modules\Management\QuizManagement\QuizParticipation\Models\Model::class;
             $participation = $participationModel::query()
@@ -172,25 +173,25 @@ class Controller extends ControllersController
                     'session_token' => substr($sessionToken, 0, 20) . '...',
                     'token_length' => strlen($sessionToken)
                 ]);
-                
+
                 // Check if participation exists with any status
                 $anyParticipation = $participationModel::query()
                     ->where('quiz_id', $request->quiz_id)
                     ->where('session_token', $sessionToken)
                     ->first();
-                    
+
                 if ($anyParticipation) {
                     \Illuminate\Support\Facades\Log::info('Found participation with different status', [
                         'current_status' => $anyParticipation->status,
                         'is_completed' => $anyParticipation->is_completed
                     ]);
-                    
-                    // if ($anyParticipation->is_completed) {
-                    //     return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
-                    // }
-                    
+
+                    if ($anyParticipation->is_completed) {
+                        return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
+                    }
+
                     // If status is not active/processing, reset it
-                    if (!in_array($anyParticipation->status, ['active', 'processing'])) {
+                    if (!in_array($anyParticipation->status, ['active'])) {
                         $anyParticipation->update(['status' => 'active']);
                         $participation = $anyParticipation;
                     }
@@ -199,16 +200,16 @@ class Controller extends ControllersController
                 }
             }
 
-            // if ($participation->is_completed) {
-            //     return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
-            // }
+            if ($participation->is_completed) {
+                return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
+            }
 
             // Mark as processing to prevent duplicate submissions
-            $participation->update(['status' => 'processing']);
+            $participation->update(['status' => 'active']);
 
             // Generate unique submission ID for tracking
             $submissionId = uniqid('quiz_submit_', true);
-            
+
             // Extract only primitive values to avoid serialization issues
             $quizId = (int) $request->quiz_id;
             $answers = $request->answers ?? [];
@@ -228,31 +229,36 @@ class Controller extends ControllersController
             $batch = \Illuminate\Support\Facades\Bus::batch([
                 new SubmitQuizJob($jobData, $sessionTokenValue)
             ])
-            ->name("Quiz Submission - Quiz ID: {$quizId}")
-            ->allowFailures(false)
-            ->onQueue('quiz_submissions')
-            ->onConnection('database')
-            ->then(function ($batch) use ($submissionId) {
-                \Illuminate\Support\Facades\Log::info('Quiz submission batch completed', [
-                    'batch_id' => $batch->id,
-                    'submission_id' => $submissionId
-                ]);
-            })
-            ->catch(function ($batch, $throwable) use ($quizId, $sessionTokenValue) {
-                \Illuminate\Support\Facades\Log::error('Quiz submission batch failed', [
-                    'batch_id' => $batch->id,
-                    'quiz_id' => $quizId,
-                    'error' => $throwable->getMessage()
-                ]);
-                
-                // Reset participation status for retry
-                $participationModel = \App\Modules\Management\QuizManagement\QuizParticipation\Models\Model::class;
-                $participationModel::query()
-                    ->where('quiz_id', $quizId)
-                    ->where('session_token', $sessionTokenValue)
-                    ->update(['status' => 'active']);
-            })
-            ->dispatch();
+                ->name("Quiz Submission - Quiz ID: {$quizId}")
+                ->allowFailures(false)
+                ->onQueue('quiz_submissions')
+                ->onConnection('database')
+                ->then(function ($batch) use ($submissionId) {
+                    \Illuminate\Support\Facades\Log::info('Quiz submission batch completed', [
+                        'batch_id' => $batch->id,
+                        'submission_id' => $submissionId
+                    ]);
+                })
+                ->catch(function ($batch, $throwable) use ($quizId, $sessionTokenValue) {
+                    \Illuminate\Support\Facades\Log::error('Quiz submission batch failed', [
+                        'batch_id' => $batch->id,
+                        'quiz_id' => $quizId,
+                        'error' => $throwable->getMessage()
+                    ]);
+
+                    // Reset participation status for retry
+                    $participationModel = \App\Modules\Management\QuizManagement\QuizParticipation\Models\Model::class;
+                    $participationModel::query()
+                        ->where('quiz_id', $quizId)
+                        ->where('session_token', $sessionTokenValue)
+                        ->update(['status' => 'active']);
+                })
+                ->dispatch();
+
+            // Immediately run your worker in background
+            exec('nohup php ' . base_path('artisan') . ' queue:process-once > /dev/null 2>&1 &');
+
+            Artisan::call('queue:process-once');
 
             // Store batch info for tracking
             \Illuminate\Support\Facades\Cache::put("submission_batch_{$submissionId}", [
@@ -270,14 +276,13 @@ class Controller extends ControllersController
                 'status' => 'processing',
                 'estimated_processing_time' => '5-10 seconds'
             ]);
-
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Quiz submission queue error', [
                 'error' => $e->getMessage(),
                 'quiz_id' => $request->quiz_id,
                 'session_token' => substr($sessionToken, 0, 10) . '...'
             ]);
-            
+
             return messageResponse($e->getMessage(), [], 500, 'server_error');
         }
     }
@@ -287,24 +292,24 @@ class Controller extends ControllersController
     {
         try {
             $batchInfo = \Illuminate\Support\Facades\Cache::get("submission_batch_{$submissionId}");
-            
+
             if (!$batchInfo) {
                 return messageResponse('Submission not found', [], 404, 'not_found');
             }
 
             $batch = \Illuminate\Support\Facades\Bus::findBatch($batchInfo['batch_id']);
-            
+
             if (!$batch) {
                 return messageResponse('Batch not found', [], 404, 'batch_not_found');
             }
 
             $status = 'processing';
             $message = 'Quiz submission is being processed';
-            
+
             if ($batch->finished()) {
                 $status = 'completed';
                 $message = 'Quiz submitted successfully';
-                
+
                 // Get final results
                 $participationModel = \App\Modules\Management\QuizManagement\QuizParticipation\Models\Model::class;
                 $participation = $participationModel::query()
@@ -344,7 +349,6 @@ class Controller extends ControllersController
                     'failed_jobs' => $batch->failedJobs
                 ]
             ]);
-
         } catch (\Exception $e) {
             return messageResponse($e->getMessage(), [], 500, 'server_error');
         }
@@ -354,21 +358,21 @@ class Controller extends ControllersController
     public function debug_session(Request $request)
     {
         $sessionToken = $request->header('Authorization') ? str_replace('Bearer ', '', $request->header('Authorization')) : null;
-        
+
         // Also check X-Session-Token header as fallback
         if (!$sessionToken) {
             $sessionToken = $request->header('X-Session-Token');
         }
 
         $quizId = $request->input('quiz_id');
-        
+
         $participationModel = \App\Modules\Management\QuizManagement\QuizParticipation\Models\Model::class;
-        
+
         // Find all participations for this quiz
         $allParticipations = $participationModel::query()
             ->where('quiz_id', $quizId)
             ->get(['id', 'user_id', 'quiz_id', 'session_token', 'status', 'is_completed', 'created_at'])
-            ->map(function($p) {
+            ->map(function ($p) {
                 return [
                     'id' => $p->id,
                     'user_id' => $p->user_id,
