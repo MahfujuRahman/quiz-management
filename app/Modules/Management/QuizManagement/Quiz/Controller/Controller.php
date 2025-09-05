@@ -148,7 +148,6 @@ class Controller extends ControllersController
         ]);
 
         $data = SubmitQuizExam::execute($request, $sessionToken);
-
         
         return $data;
     }

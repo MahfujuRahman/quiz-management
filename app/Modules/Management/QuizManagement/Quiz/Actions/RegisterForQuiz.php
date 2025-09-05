@@ -43,22 +43,22 @@ class RegisterForQuiz
             }
 
             // Check if user already registered for this quiz (based on email)
-            $existingParticipation = self::$participationModel::query()
-                ->where('quiz_id', $quizId)
-                ->where(function ($query) use ($email, $phone) {
-                    $query->where('email', $email)
-                        ->orWhere('phone', $phone);
-                })
-                ->first();
+            // $existingParticipation = self::$participationModel::query()
+            //     ->where('quiz_id', $quizId)
+            //     ->where(function ($query) use ($email, $phone) {
+            //         $query->where('email', $email)
+            //             ->orWhere('phone', $phone);
+            //     })
+            //     ->first();
 
-            if ($existingParticipation) {
-                // Return existing session token
-                return entityResponse([
-                    'message' => 'Already registered',
-                    'session_token' => $existingParticipation->session_token,
-                    'participation_id' => $existingParticipation->id
-                ]);
-            }
+            // if ($existingParticipation) {
+            //     // Return existing session token
+            //     return entityResponse([
+            //         'message' => 'Already registered',
+            //         'session_token' => $existingParticipation->session_token,
+            //         'participation_id' => $existingParticipation->id
+            //     ]);
+            // }
 
             // Create new participation record
             $sessionToken = Str::random(64);

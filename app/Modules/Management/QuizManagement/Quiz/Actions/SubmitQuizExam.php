@@ -7,6 +7,7 @@ use Carbon\Carbon;
 class SubmitQuizExam
 {
     static $quizModel = \App\Modules\Management\QuizManagement\Quiz\Models\Model::class;
+    static $participationModel = \App\Modules\Management\QuizManagement\QuizParticipation\Models\Model::class;
 
     public static function execute($request, $sessionToken)
     {
@@ -16,10 +17,25 @@ class SubmitQuizExam
             $duration = $request->input('duration');
             $submitReason = $request->input('submit_reason', 'Normal completion');
 
+
             // Validate that the quiz exists and is active
-            $quiz = self::$quizModel::query()
-                ->where('id', $quizId)
+            $participation = self::$participationModel::query()
+                ->where('quiz_id', $quizId)
+                ->where('session_token', $sessionToken)
                 ->where('status', 'active')
+                ->first();
+
+            if (!$participation) {
+                return messageResponse('Invalid session', [], 401, 'invalid_session');
+            }
+
+            if ($participation->is_completed) {
+                return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
+            }
+
+            // Get quiz details for marking
+            $quiz = self::$quizModel::with('quiz_questions.quiz_question_options')
+                ->where('id', $quizId)
                 ->first();
 
             if (!$quiz) {
@@ -34,10 +50,23 @@ class SubmitQuizExam
                 return messageResponse('Quiz has already ended', [], 400, 'quiz_ended');
             }
 
-            // Calculate marks (simplified for now)
+            // Calculate marks
             $obtainedMarks = self::calculateMarks($quiz, $answers);
             $percentage = ($obtainedMarks / $quiz->total_mark) * 100;
             $isPassed = $obtainedMarks >= $quiz->pass_mark;
+
+
+            // Update participation record
+            $participation->update([
+                'answers' => $answers,
+                'obtained_marks' => $obtainedMarks,
+                'percentage' => $percentage,
+                'duration' => $duration,
+                'submit_reason' => $submitReason,
+                'submitted_at' => Carbon::now(),
+                'is_completed' => true,
+                'is_passed' => $isPassed
+            ]);
 
             // Return success response
             return entityResponse([
@@ -50,7 +79,6 @@ class SubmitQuizExam
                 'duration' => $duration,
                 'submit_reason' => $submitReason
             ]);
-
         } catch (\Exception $e) {
             return messageResponse($e->getMessage(), [], 500, 'server_error');
         }
@@ -58,14 +86,50 @@ class SubmitQuizExam
 
     private static function calculateMarks($quiz, $answers)
     {
-        // Simple calculation for demo purposes
-        $totalQuestions = $quiz->total_question;
-        $answeredQuestions = count($answers);
-        
-        // For demo, assume 70% correctness
-        $estimatedCorrect = $answeredQuestions * 0.7;
-        $markPerQuestion = $quiz->total_mark / $totalQuestions;
-        
-        return round($estimatedCorrect * $markPerQuestion, 2);
+    
+        $totalMarks = 0;
+        $negativeMarking = $quiz->is_negative_marking;
+        $negativeValue = $quiz->negative_value ?? 0;
+
+        foreach ($quiz->quiz_questions as $question) {
+            $questionId = $question->id;
+            $questionMark = $question->mark;
+            $userAnswers = $answers[$questionId] ?? [];
+
+            if (empty($userAnswers)) {
+                continue; // No answer given
+            }
+
+            // Get correct answers
+            $correctAnswers = $question->quiz_question_options
+                ->where('is_correct', true)
+                ->pluck('id')
+                ->toArray();
+
+            if ($question->is_multiple) {
+                // Multiple choice - all correct answers must be selected
+                $userAnswerIds = array_map('intval', $userAnswers);
+                $correctAnswerIds = array_map('intval', $correctAnswers);
+
+                sort($userAnswerIds);
+                sort($correctAnswerIds);
+
+                if ($userAnswerIds === $correctAnswerIds) {
+                    $totalMarks += $questionMark;
+                } elseif ($negativeMarking) {
+                    $totalMarks -= $negativeValue;
+                }
+            } else {
+                // Single choice
+                $userAnswer = intval($userAnswers[0]);
+                if (in_array($userAnswer, $correctAnswers)) {
+                    $totalMarks += $questionMark;
+                } elseif ($negativeMarking) {
+                    $totalMarks -= $negativeValue;
+                }
+            }
+        }
+
+        return max(0, $totalMarks); // Ensure marks don't go negative
     }
 }
