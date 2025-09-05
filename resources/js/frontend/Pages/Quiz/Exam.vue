@@ -351,10 +351,9 @@ export default {
 
                 if (response.data.statusCode === 200) {
                     const data = response.data.data;
-                    console.log(data);
                     this.quiz = data.quiz || data;
                     this.questions = data.questions || data.quiz_questions || [];
-                    this.studentInfo = data.student_info || { name: 'Student', email: 'student@example.com' };
+                    this.studentInfo = data.student_info[0] || { name: 'Student', email: 'student@example.com' };
                     this.completionMessage = data.completion_message || 'পরীক্ষা সম্পন্ন হয়েছে।';
 
                     this.startExam();

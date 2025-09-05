@@ -50,4 +50,13 @@ class Model extends EloquentModel
             "quiz_question_id"
         );
     }
+
+    public function student_info()
+    {
+        return $this->hasMany(
+            "App\Modules\Management\QuizManagement\Quiz\Models\QuizParticipation",
+            "quiz_id",
+            "id"
+        );
+    }
 }

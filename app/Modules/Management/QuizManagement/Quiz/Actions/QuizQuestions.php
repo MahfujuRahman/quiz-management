@@ -10,6 +10,12 @@ class QuizQuestions
     {
         try {
 
+            $sessionToken = request()->header('Authorization') ? str_replace('Bearer ', '', request()->header('Authorization')) : null;
+           
+            if (!$sessionToken) {
+                return messageResponse('Session token required', [], 401, 'unauthorized');
+            }
+
             $pageLimit = request()->input('limit') ?? 10;
             $quiz_id = request()->input('quiz_id') ?? null;
             $orderByColumn = request()->input('sort_by_col') ?? 'id';
@@ -38,6 +44,9 @@ class QuizQuestions
                 $with = [
                     'quiz_questions:id,quiz_question_topic_id,title,question_level,mark,is_multiple,slug',
                     'quiz_questions.quiz_question_options:id,quiz_question_id,title,is_correct,image,slug',
+                    'student_info' => function ($query) use ($sessionToken) {
+                        $query->where('session_token', $sessionToken);
+                    }
                 ];
                 $condition = [
                     'id' => $quiz_id
