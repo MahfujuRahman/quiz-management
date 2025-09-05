@@ -17,11 +17,11 @@ class SubmitQuizExam
             $duration = $request->input('duration');
             $submitReason = $request->input('submit_reason', 'Normal completion');
 
-            // Validate that the quiz exists and is active
+            // Validate that the quiz exists and is active or processing
             $participation = self::$participationModel::query()
                 ->where('quiz_id', $quizId)
                 ->where('session_token', $sessionToken)
-                ->where('status', 'active')
+                ->whereIn('status', ['active', 'processing']) // Allow both active and processing status
                 ->first();
 
             if (!$participation) {
