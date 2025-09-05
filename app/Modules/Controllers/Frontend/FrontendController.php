@@ -17,6 +17,14 @@ class FrontendController extends Controller
             ]
         ]);
     }
+    public function QuizList()
+    {
+        return Inertia::render('HomePage/QuizList', [
+            'event' => [
+                'title' => 'Quiz List',
+            ]
+        ]);
+    }
 
     public function QuizPage()
     {

@@ -17,7 +17,7 @@
         </section>
 
         <!-- Direct Quiz Link Section -->
-        <section class="py-5 bg-light">
+        <section class="py-5    ">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-lg-6">
@@ -38,86 +38,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Available Quizzes Section -->
-        <section class="py-5">
-            <div class="container">
-                <h2 class="text-center mb-5">সক্রিয় পরীক্ষাসমূহ</h2>
-
-                <div class="row" v-if="loading">
-                    <div class="col-12 text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="sr-only">লোড হচ্ছে...</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" v-else-if="quizzes.length > 0">
-                    <div class="col-lg-4 col-md-6 mb-4" v-for="quiz in quizzes" :key="quiz.id">
-                        <div class="card h-100 shadow quiz-card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0">{{ quiz.title }}</h5>
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text" v-if="quiz.description">{{ quiz.description }}</p>
-
-                                <div class="quiz-info">
-                                    <small class="text-muted d-block mb-2">
-                                        <i class="fas fa-clock"></i>
-                                        শুরু: {{ formatDateTime(quiz.exam_start_datetime) }}
-                                    </small>
-                                    <small class="text-muted d-block mb-2">
-                                        <i class="fas fa-clock-o"></i>
-                                        শেষ: {{ formatDateTime(quiz.exam_end_datetime) }}
-                                    </small>
-                                    <small class="text-muted d-block mb-2">
-                                        <i class="fas fa-question-circle"></i>
-                                        প্রশ্ন সংখ্যা: {{ quiz.total_question }}
-                                    </small>
-                                    <small class="text-muted d-block mb-3">
-                                        <i class="fas fa-star"></i>
-                                        পূর্ণমান: {{ quiz.total_mark }}
-                                    </small>
-                                </div>
-
-                                <div class="quiz-status mb-3">
-                                    <span v-if="getQuizStatus(quiz) === 'upcoming'" class="badge badge-warning">
-                                        <i class="fas fa-hourglass-start"></i> শীঘ্রই শুরু
-                                    </span>
-                                    <span v-else-if="getQuizStatus(quiz) === 'ongoing'" class="badge badge-success">
-                                        <i class="fas fa-play-circle"></i> চলমান
-                                    </span>
-                                    <span v-else-if="getQuizStatus(quiz) === 'ended'" class="badge badge-danger">
-                                        <i class="fas fa-stop-circle"></i> সমাপ্ত
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <button v-if="getQuizStatus(quiz) === 'ongoing'" @click="joinQuiz(quiz)"
-                                    class="btn btn-success btn-block">
-                                    <i class="fas fa-play"></i> পরীক্ষায় অংশগ্রহণ করুন
-                                </button>
-                                <button v-else-if="getQuizStatus(quiz) === 'upcoming'" class="btn btn-warning btn-block"
-                                    disabled>
-                                    <i class="fas fa-clock"></i> {{ getCountdown(quiz.exam_start_datetime) }}
-                                </button>
-                                <button v-else class="btn btn-secondary btn-block" disabled>
-                                    <i class="fas fa-times"></i> পরীক্ষা সমাপ্ত
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" v-else>
-                    <div class="col-12 text-center">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> বর্তমানে কোনো সক্রিয় পরীক্ষা নেই।
                         </div>
                     </div>
                 </div>

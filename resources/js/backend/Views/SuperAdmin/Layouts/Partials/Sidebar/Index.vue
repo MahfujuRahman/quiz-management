@@ -29,7 +29,19 @@
       <side-bar-single-menu :icon="`zmdi zmdi-collection-text`" :menu_title="`All Quiz`" :route_name="`AllQuiz`" />
       <side-bar-single-menu :icon="`zmdi zmdi-chart`" :menu_title="`Quiz Result`" :route_name="`AllQuizSubmissionResult`" />
 
-      <!-- Management end -->
+    
+<side-bar-drop-down-menus
+        :icon="`fa fa-plus`"
+        :menu_title="`QuizManagement`"
+        :menus="[
+          {
+            route_name: `AllQuizParticipation`,
+            title: `QuizParticipation`,
+            icon: `zmdi zmdi-dot-circle-alt`,
+          },
+        ]"
+/>
+<!-- Management end -->
     </ul>
   </div>
 </template>

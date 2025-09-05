@@ -7,6 +7,7 @@ import SettingsRoutes from "../Management/Settings/setup/routes.js";
 //UserRoutes
 import UserRoutes from "../Management/UserManagement/User/setup/routes.js";
 //routes
+import QuizParticipationRoutes from '../../../GlobalManagement/QuizManagement/QuizParticipation/setup/routes.js';
 
 import QuizSubmissionResultRoutes from '../../../GlobalManagement/QuizManagement/QuizSubmissionResult/setup/routes.js';
 import QuizRoutes from '../../../GlobalManagement/QuizManagement/Quiz/setup/routes.js';
@@ -23,6 +24,8 @@ const routes = {
       name: "adminDashboard",
     },
     //management routes
+        QuizParticipationRoutes,
+
         QuizSubmissionResultRoutes,
         QuizRoutes,
         QuizQuestionRoutes,

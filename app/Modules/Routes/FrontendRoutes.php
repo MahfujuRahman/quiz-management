@@ -8,6 +8,7 @@ use App\Modules\Controllers\Frontend\Auth\AuthController as BackendAuthControlle
 
 Route::get('/', [FrontendController::class, 'HomePage'])->name('HomePage');
 Route::get('/quiz', [FrontendController::class, 'QuizPage'])->name('QuizPage');
+Route::get('/quiz-list', [FrontendController::class, 'QuizList'])->name('QuizList');
 Route::get('/result', [FrontendController::class, 'Result'])->name('Result');
 Route::get('/quiz-register', [FrontendController::class, 'Register'])->name('Register');
 

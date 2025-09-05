@@ -37,14 +37,14 @@ return new class extends Migration
             $table->timestamp('started_at')->nullable();
             $table->timestamp('submitted_at')->nullable();
 
+            $table->bigInteger('creator')->unsigned()->nullable();
+            $table->string('slug', 50)->nullable();
             $table->timestamps();
 
             // Indexes
             $table->index(['quiz_id', 'email']);
             $table->index(['quiz_id', 'is_completed']);
             $table->index('session_token');
-            $table->bigInteger('creator')->unsigned()->nullable();
-            $table->string('slug', 50)->nullable();
             $table->softDeletes();
         });
     }
