@@ -12,7 +12,7 @@ try {
     // Get active participations
     $participations = Participation::where('is_completed', false)
         ->where('status', 'active')
-        ->limit(200)
+        ->limit(600) // Get up to 600 users
         ->get(['id', 'quiz_id', 'session_token', 'name', 'email']);
 
     // Convert to JavaScript array format
