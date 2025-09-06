@@ -1,5 +1,5 @@
 // Auto-generated user data for k6 load testing
-// Generated on: 2025-09-05 19:58:32
+// Generated on: 2025-09-06 09:21:19
 
 export const exportedUsers = [
     {
@@ -3529,5 +3529,12 @@ export const exportedUsers = [
         "session_token": "Ps6IRfbVnavTCVUIJRc0t3RItLF87DP1Q7AvLy2DcxzbDVnmsSs0s2Kx72XTd6in",
         "name": "LoadTestUser500",
         "email": "loadtest500@example.com"
+    },
+    {
+        "id": 713,
+        "quiz_id": 2,
+        "session_token": "Mqnosps3qOGHU4MONnKEEK5tPL8tBUcasG4B89Hc7ujdzeVWC9xvepE4gmCnZsMb",
+        "name": "Et aut consequatur",
+        "email": "wefenamiwi@mailinator.com"
     }
 ];

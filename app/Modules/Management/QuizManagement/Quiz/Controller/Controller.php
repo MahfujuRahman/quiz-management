@@ -186,9 +186,9 @@ class Controller extends ControllersController
                         'is_completed' => $anyParticipation->is_completed
                     ]);
 
-                    if ($anyParticipation->is_completed) {
-                        return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
-                    }
+                    // if ($anyParticipation->is_completed) {
+                    //     return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
+                    // }
 
                     // If status is not active/processing, reset it
                     if (!in_array($anyParticipation->status, ['active'])) {
@@ -200,9 +200,9 @@ class Controller extends ControllersController
                 }
             }
 
-            if ($participation->is_completed) {
-                return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
-            }
+            // if ($participation->is_completed) {
+            //     return messageResponse('Quiz already submitted', [], 400, 'already_submitted');
+            // }
 
             // Mark as processing to prevent duplicate submissions
             $participation->update(['status' => 'active']);
