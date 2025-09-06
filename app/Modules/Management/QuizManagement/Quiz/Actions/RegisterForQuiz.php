@@ -18,6 +18,8 @@ class RegisterForQuiz
             $email = $request->input('email');
             $phone = $request->input('phone');
             $organization = $request->input('organization');
+            $class = $request->input('class');
+            $groupClass = $request->input('group_class');
 
             // Validate quiz exists and is active
             $quiz = self::$quizModel::query()
@@ -70,6 +72,8 @@ class RegisterForQuiz
                 'email' => $email,
                 'phone' => $phone,
                 'organization' => $organization,
+                'class' => $class,
+                'group_class' => $groupClass,
                 'started_at' => $now,
                 'is_completed' => false,
                 'status' => 'active'

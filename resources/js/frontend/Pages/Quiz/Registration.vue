@@ -78,20 +78,20 @@
                                             placeholder="আপনার পূর্ণ নাম লিখুন" required>
                                     </div>
 
-                                    <!-- <div class="col-md-6 mb-3">
-                                        <label class="form-label required">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
                                             <i class="fas fa-users"></i> গ্রুপ/বিভাগ
                                         </label>
-                                        <select class="form-control" v-model="studentInfo.group" required>
+                                        <select class="form-control" v-model="studentInfo.group">
                                             <option value="">নির্বাচন করুন</option>
                                             <option value="science">বিজ্ঞান</option>
                                             <option value="commerce">ব্যবসায় শিক্ষা</option>
                                             <option value="arts">মানবিক</option>
                                             <option value="others">অন্যান্য</option>
                                         </select>
-                                    </div> -->
+                                    </div>
 
-                                    <!-- <div class="col-md-6 mb-3">
+                                    <div class="col-md-6 mb-3">
                                         <label class="form-label required">
                                             <i class="fas fa-graduation-cap"></i> শ্রেণি
                                         </label>
@@ -113,7 +113,7 @@
                                         </label>
                                         <input type="text" class="form-control" v-model="studentInfo.institution"
                                             placeholder="আপনার শিক্ষা প্রতিষ্ঠানের নাম" required>
-                                    </div> -->
+                                    </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label required">
@@ -123,7 +123,7 @@
                                             placeholder="01XXXXXXXXX" pattern="[0-9]{11}" required>
                                     </div>
 
-                                    <div class="col-md-12 mb-3">
+                                    <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <i class="fas fa-envelope"></i> ইমেইল (ঐচ্ছিক)
                                         </label>
@@ -135,7 +135,7 @@
                                 <!-- Terms and Conditions -->
                                 <div class="card bg-light border-warning mt-4">
                                     <div class="card-body">
-                                        <h6 class="card-title text-warning">
+                                        <!-- <h6 class="card-title text-warning">
                                             <i class="fas fa-exclamation-triangle"></i> পরীক্ষার নিয়মাবলী
                                         </h6>
                                         <ul class="list-unstyled mb-0">
@@ -151,7 +151,9 @@
                                                 জমা হয়ে যাবে</li>
                                             <li><i class="fas fa-check text-success"></i> ৫ মিনিট আগে সতর্কতা দেওয়া হবে
                                             </li>
-                                        </ul>
+                                        </ul> -->
+
+                                        <div v-html="quiz.description"></div>
 
                                         <div class="form-check mt-3">
                                             <input type="checkbox" class="form-check-input" id="agreeTerms"
@@ -234,7 +236,7 @@ export default {
             const endTime = moment(this.quiz.exam_end_datetime);
             return now.isAfter(startTime) && now.isBefore(endTime);
         },
-         StartExamTime() {
+        StartExamTime() {
             if (!this.quiz) return false;
             const now = moment();
             const startTime = moment(this.quiz.exam_start_datetime);
@@ -316,6 +318,9 @@ export default {
                     name: this.studentInfo.name,
                     email: this.studentInfo.email,
                     phone: this.studentInfo.phone,
+                    class: this.studentInfo.class,
+                    group_class: this.studentInfo.group,
+                    organization: this.studentInfo.institution,
                 });
 
                 if (response.data.statusCode == 200) {
@@ -332,7 +337,7 @@ export default {
             } finally {
                 this.loading = false;
             }
-        }
+        },
     }
 }
 </script>

@@ -11,10 +11,10 @@ class QuizQuestions
         try {
 
             $sessionToken = request()->header('Authorization') ? str_replace('Bearer ', '', request()->header('Authorization')) : null;
-           
-            if (!$sessionToken) {
-                return messageResponse('Session token required', [], 401, 'unauthorized');
-            }
+
+            // if (!$sessionToken) {
+            //     return messageResponse('Session token required', [], 401, 'unauthorized');
+            // }
 
             $pageLimit = request()->input('limit') ?? 10;
             $quiz_id = request()->input('quiz_id') ?? null;
@@ -42,8 +42,17 @@ class QuizQuestions
             //if quiz_id is present in query param then it gets quiz_questions with options
             if ($quiz_id) {
                 $with = [
-                    'quiz_questions:id,quiz_question_topic_id,title,question_level,mark,is_multiple,slug',
-                    'quiz_questions.quiz_question_options:id,quiz_question_id,title,is_correct,image,slug',
+                    // 'quiz_questions:id,quiz_question_topic_id,title,question_level,mark,is_multiple,slug',
+                    // 'quiz_questions.quiz_question_options:id,quiz_question_id,title,is_correct,image,slug',\
+
+                    'quiz_questions' => function ($query) {
+                        $query->select('quiz_questions.id', 'quiz_question_topic_id', 'title', 'question_level', 'mark', 'is_multiple', 'quiz_questions.slug')
+                            ->orderByRaw('RAND()');
+                    },
+                    'quiz_questions.quiz_question_options' => function ($query) {
+                        $query->select('id', 'quiz_question_id', 'title', 'is_correct', 'image', 'slug')
+                            ->orderByRaw('RAND()');
+                    },
                     'student_info' => function ($query) use ($sessionToken) {
                         $query->where('session_token', $sessionToken);
                     }

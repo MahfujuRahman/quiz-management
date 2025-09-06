@@ -126,10 +126,6 @@
                                         <small>উত্তর দেওয়া ({{ answeredQuestions }})</small>
                                     </div>
                                     <div class="legend-item">
-                                        <span class="legend-color current"></span>
-                                        <small>বর্তমান প্রশ্ন</small>
-                                    </div>
-                                    <div class="legend-item">
                                         <span class="legend-color unanswered"></span>
                                         <small>অনুত্তরিত ({{ questions.length - answeredQuestions }})</small>
                                     </div>
@@ -215,7 +211,7 @@
                             <div class="completion-icon mb-4">
                                 <i class="fas fa-check-circle text-success"></i>
                             </div>
-                            <h2 class="completion-title">পরীক্ষা সম্পন্ন!</h2>
+                            <h2 class="completion-title">জাজাকাল্লাহ খাইরান</h2>
                             <p class="completion-message">{{ completionMessage || 'আপনার উত্তরপত্র সফলভাবে জমাদেওয়াহয়েছে।' }}</p>
 
                             <div class="exam-summary">

@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Hero Section -->
-        <section class="hero-section bg-gradient-primary py-5">
+        <!-- <section class="hero-section bg-gradient-primary py-5">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-lg-12 text-center">
@@ -14,10 +14,21 @@
                     </div>
                 </div>
             </div>
+        </section> -->
+
+        <!-- Hero Section -->
+        <section class="hero-section bg-gradient-primary py-5">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-lg-12 text-center">
+                        <img src="/poster.jpg" alt="Hero Image" class="img-fluid mb-4">
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Direct Quiz Link Section -->
-        <section class="py-5    ">
+        <section class="py-3">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-lg-6">
