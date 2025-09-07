@@ -256,8 +256,6 @@ class Controller extends ControllersController
                 ->dispatch();
 
             // Immediately run your worker in background
-            exec('nohup php ' . base_path('artisan') . ' queue:process-once > /dev/null 2>&1 &');
-
             Artisan::call('queue:process-once');
 
             // Store batch info for tracking
