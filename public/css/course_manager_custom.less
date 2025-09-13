@@ -1,0 +1,125 @@
+.group {
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 1px solid white;
+    position: relative;
+
+    &::after {
+        content: "";
+        width: 20px;
+        height: 1px;
+        background-color: white;
+        left: -21px;
+        top: 0px;
+        position: absolute;
+    }
+
+    &.modules,
+    &.classes,
+    &.milestones {
+        .title {
+            position: relative;
+            padding-left: 15px;
+            display: flex;
+            gap: 40px;
+            justify-content: space-between;
+
+            &::after {
+                content: "";
+                width: 20px;
+                height: 1px;
+                background-color: white;
+                left: -20px;
+                top: 13px;
+                position: absolute;
+            }
+
+            .heading {
+                margin-bottom: 20px;
+            }
+        }
+
+        .form_group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+
+            label {
+                width: 80px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: bold;
+                text-transform: capitalize;
+            }
+
+            .input {
+                flex: 1;
+            }
+
+        }
+    }
+
+    &.milestones {
+        border-left-color: yellow;
+        &::after {
+            background-color: transparent;
+        }
+    }
+
+    &.modules {
+        padding-left: 20px;
+        margin-bottom: 30px;
+        border-left-color: rgb(38, 188, 230);
+
+        &::after {
+            background-color: rgb(38, 188, 230);
+        }
+
+        .title{
+            &::after{
+                background-color: rgb(38, 188, 230);
+            }
+        }
+
+        &.group {
+            padding-right: 0;
+        }
+
+        .top {
+            padding-bottom: 30px;
+        }
+    }
+
+    &.classes {
+        padding-left: 20px;
+        margin-bottom: 60px;
+        border-left-color: rgb(230, 38, 220);
+
+        &::after {
+            background-color: rgb(230, 38, 220);
+        }
+
+        .title{
+            &::after{
+                background-color: rgb(230, 38, 220);
+            }
+        }
+
+        &.group {
+            padding-right: 0;
+            padding-bottom: 0;
+        }
+    }
+}
+
+.promo-iframe {
+    height: 60px;
+    width: 90px;
+    display: block;
+
+    iframe, img{
+        width: 100% !important;
+        height: 100% !important;
+    }
+}

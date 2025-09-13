@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Modules\Management\QuizManagement\Quiz\Actions;
+
+class QuizQuestions
+{
+    static $model = \App\Modules\Management\QuizManagement\Quiz\Models\Model::class;
+
+    public static function execute()
+    {
+        try {
+
+            $sessionToken = request()->header('Authorization') ? str_replace('Bearer ', '', request()->header('Authorization')) : null;
+
+            // if (!$sessionToken) {
+            //     return messageResponse('Session token required', [], 401, 'unauthorized');
+            // }
+
+            $pageLimit = request()->input('limit') ?? 10;
+            $quiz_id = request()->input('quiz_id') ?? null;
+            $orderByColumn = request()->input('sort_by_col') ?? 'id';
+            $orderByType = request()->input('sort_type') ?? 'desc';
+            $status = request()->input('status') ?? 'active';
+
+            $fields = [
+                'id',
+                'title',
+                'description',
+                'total_question',
+                'exam_start_datetime',
+                'exam_end_datetime',
+                'total_mark',
+                'pass_mark',
+                'is_negative_marking',
+                'negative_value',
+                'slug'
+            ];
+
+            $with = [];
+            $condition = [];
+
+            //if quiz_id is present in query param then it gets quiz_questions with options
+            if ($quiz_id) {
+                $with = [
+                    // 'quiz_questions:id,quiz_question_topic_id,title,question_level,mark,is_multiple,slug',
+                    // 'quiz_questions.quiz_question_options:id,quiz_question_id,title,is_correct,image,slug',\
+
+                    'quiz_questions' => function ($query) {
+                        $query->select('quiz_questions.id', 'quiz_question_topic_id', 'title', 'question_level', 'mark', 'is_multiple', 'quiz_questions.slug')
+                            ->orderByRaw('RAND()');
+                    },
+                    'quiz_questions.quiz_question_options' => function ($query) {
+                        $query->select('id', 'quiz_question_id', 'title', 'is_correct', 'image', 'slug')
+                            ->orderByRaw('RAND()');
+                    },
+                    'student_info' => function ($query) use ($sessionToken) {
+                        $query->where('session_token', $sessionToken);
+                    }
+                ];
+                $condition = [
+                    'id' => $quiz_id
+                ];
+            }
+
+            $data = self::$model::query();
+
+            if ($quiz_id) {
+                $data = $data
+                    ->with($with)
+                    ->select($fields)
+                    ->where($condition)
+                    ->where('status', $status)
+                    ->orderBy($orderByColumn, $orderByType)
+                    ->first();
+            } else {
+                $data = $data
+                    ->with($with)
+                    ->select($fields)
+                    ->where($condition)
+                    ->where('status', $status)
+                    ->orderBy($orderByColumn, $orderByType)
+                    ->paginate($pageLimit);
+            }
+
+            return entityResponse([
+                ...$data->toArray(),
+            ]);
+        } catch (\Exception $e) {
+            return messageResponse($e->getMessage(), [], 500, 'server_error');
+        }
+    }
+}
