@@ -163,7 +163,7 @@
             <div class="exam-navigation">
                 <div class="container-fluid px-3">
                     <div class="row align-items-center">
-                        <div class="col-6 col-sm-4">
+                        <div class="col-4 col-sm-4">
                             <button class="btn btn-outline-secondary btn-nav" @click="previousQuestion"
                                 :disabled="currentQuestionIndex === 0">
                                 <i class="fas fa-chevron-left me-2"></i>
@@ -184,14 +184,16 @@
                             </div>
                         </div>
 
-                        <div class="col-6 col-sm-4 order-2 order-sm-3 text-end">
-                            <button v-if="currentQuestionIndex < questions.length - 1" class="btn btn-primary btn-nav"
+                        <div class="col-8 col-sm-4 order-2 order-sm-3 text-end">
+                            <!-- <button v-if="currentQuestionIndex < questions.length - 1" class="btn btn-primary btn-nav" -->
+                            <button class="btn btn-primary btn-nav"
                                 @click="nextQuestion">
                                 <span class="d-none d-sm-inline">পরবর্তী</span>
                                 <span class="d-inline d-sm-none">পর</span>
                                 <i class="fas fa-chevron-right ms-2"></i>
                             </button>
-                            <button v-else class="btn btn-success btn-nav" @click="finishExam">
+                            <button class="ms-2 btn btn-success btn-nav" @click="finishExam">
+                            <!-- <button v-else class="btn btn-success btn-nav" @click="finishExam"> -->
                                 <i class="fas fa-check-circle me-2"></i>
                                 <span class="d-none d-sm-inline">পরীক্ষা শেষ</span>
                                 <span class="d-inline d-sm-none">শেষ</span>
