@@ -51,11 +51,11 @@
                         <div class="col-md-6">
                             <label class="form-label font-weight-bold">Mark</label>
                             <input 
-                                type="number" 
-                                step="0.01" 
+                                type="number"  
                                 class="form-control" 
                                 v-model="formData.mark" 
                                 placeholder="Enter your mark"
+                                readonly
                             />
                         </div>
                         
@@ -175,7 +175,7 @@ import QuizQuestionTopicDropDownEl from "../../QuizQuestionTopic/components/drop
         formData: {
             title: "",
             question_level: "",
-            mark: "",
+            mark: 1,
             is_multiple: "",
             session_year: "",
             quiz_question_topic_id: ""
@@ -206,7 +206,7 @@ import QuizQuestionTopicDropDownEl from "../../QuizQuestionTopic/components/drop
             this.formData = {
                 title: "",
                 question_level: "",
-                mark: "",
+                mark: 1,
                 is_multiple: "",
                 session_year: "",
                 quiz_question_topic_id: ""

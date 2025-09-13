@@ -20,6 +20,8 @@ class RegisterForQuiz
             $organization = $request->input('organization');
             $class = $request->input('class');
             $groupClass = $request->input('group_class');
+            $thana = $request->input('thana');
+            $address = $request->input('address');
 
             // Validate quiz exists and is active
             $quiz = self::$quizModel::query()
@@ -74,6 +76,8 @@ class RegisterForQuiz
                 'organization' => $organization,
                 'class' => $class,
                 'group_class' => $groupClass,
+                'thana' => $thana,
+                'address' => $address,
                 'started_at' => $now,
                 'is_completed' => false,
                 'status' => 'active'

@@ -72,13 +72,13 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label required">
-                                            <i class="fas fa-user"></i> পূর্ণ নাম
+                                            <i class="fas fa-user"></i> বাংলায় আপনার পূর্ণ নাম লিখুন
                                         </label>
                                         <input type="text" class="form-control" v-model="studentInfo.name"
                                             placeholder="আপনার পূর্ণ নাম লিখুন" required>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
+                                    <!-- <div class="col-md-6 mb-3">
                                         <label class="form-label">
                                             <i class="fas fa-users"></i> গ্রুপ/বিভাগ
                                         </label>
@@ -89,22 +89,37 @@
                                             <option value="arts">মানবিক</option>
                                             <option value="others">অন্যান্য</option>
                                         </select>
+                                    </div> -->
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label required">
+                                            <i class="fas fa-map-marker-alt"></i> থানা
+                                        </label>
+                                        <select class="form-control" v-model="studentInfo.thana" required>
+                                            <option value="">নির্বাচন করুন</option>
+                                            <option value="ধানমন্ডি">ধানমন্ডি</option>
+                                            <option value="হাজারিবাগ">হাজারিবাগ</option>
+                                            <option value="কামরাঙ্গিরচর">কামরাঙ্গিরচর</option>
+                                            <option value="লালবাগ">লালবাগ</option>
+                                            <option value="চকবাজার">চকবাজার</option>
+                                            <option value="বংশাল">বংশাল</option>
+                                            <option value="পল্টন">পল্টন</option>
+                                            <option value="মতিঝিল">মতিঝিল</option>
+                                            <option value="রমনা">রমনা</option>
+                                            <option value="খিলগাঁও">খিলগাঁও</option>
+                                            <option value="সবুজবাগ">সবুজবাগ</option>
+                                            <option value="মুগদা">মুগদা</option>
+                                            <option value="শাহজাহানপুর">শাহজাহানপুর</option>
+                                            <option value="অন্যান্য">অন্যান্য</option>
+                                        </select>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label required">
                                             <i class="fas fa-graduation-cap"></i> শ্রেণি
                                         </label>
-                                        <select class="form-control" v-model="studentInfo.class" required>
-                                            <option value="">নির্বাচন করুন</option>
-                                            <option value="6">ষষ্ঠ</option>
-                                            <option value="7">সপ্তম</option>
-                                            <option value="8">অষ্টম</option>
-                                            <option value="9">নবম</option>
-                                            <option value="10">দশম</option>
-                                            <option value="11">একাদশ</option>
-                                            <option value="12">দ্বাদশ</option>
-                                        </select>
+                                        <input type="text" class="form-control" v-model="studentInfo.class"
+                                            placeholder="৯ম, ১০ম, ১ম বর্ষ" required>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
@@ -130,29 +145,18 @@
                                         <input type="email" class="form-control" v-model="studentInfo.email"
                                             placeholder="your@email.com">
                                     </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label required">
+                                            <i class="fas fa-map-marker-alt"></i> সম্পূর্ণ ঠিকানা
+                                        </label>
+                                        <textarea class="form-control" v-model="studentInfo.address"
+                                            placeholder="আপনার সম্পূর্ণ ঠিকানা লিখুন" required></textarea>
+                                    </div>
                                 </div>
 
                                 <!-- Terms and Conditions -->
                                 <div class="card bg-light border-warning mt-4">
                                     <div class="card-body">
-                                        <!-- <h6 class="card-title text-warning">
-                                            <i class="fas fa-exclamation-triangle"></i> পরীক্ষার নিয়মাবলী
-                                        </h6>
-                                        <ul class="list-unstyled mb-0">
-                                            <li><i class="fas fa-check text-success"></i> পরীক্ষার সময় অন্য ট্যাব খোলা
-                                                যাবে না</li>
-                                            <li><i class="fas fa-check text-success"></i> ২ বারের বেশি অন্য ট্যাব খুললে স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে</li>
-                                            <li><i class="fas fa-check text-success"></i> ৫ সেকেন্ডের বেশি বাইরে থাকলে
-                                                স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
-                                            </li>
-                                            <li><i class="fas fa-check text-success"></i> স্ক্রিনশট নেওয়া যাবে না</li>
-                                            <li><i class="fas fa-check text-success"></i> টেক্সট কপি করা যাবে না</li>
-                                            <li><i class="fas fa-check text-success"></i> সময় শেষ হলে স্বয়ংক্রিয়ভাবে
-                                                জমা হয়ে যাবে</li>
-                                            <li><i class="fas fa-check text-success"></i> ৫ মিনিট আগে সতর্কতা দেওয়া হবে
-                                            </li>
-                                        </ul> -->
-
                                         <div v-html="quiz.description"></div>
 
                                         <div class="form-check mt-3">
@@ -199,11 +203,13 @@ export default {
             quiz: null,
             studentInfo: {
                 name: '',
-                group: '',
+                // group: '',
                 class: '',
                 institution: '',
                 phone: '',
-                email: ''
+                email: '',
+                thana: '',
+                address: '',
             },
             agreedToTerms: false,
             loading: false,
@@ -319,8 +325,10 @@ export default {
                     email: this.studentInfo.email,
                     phone: this.studentInfo.phone,
                     class: this.studentInfo.class,
-                    group_class: this.studentInfo.group,
+                    // group_class: this.studentInfo.group,
+                    thana: this.studentInfo.thana,
                     organization: this.studentInfo.institution,
+                    address: this.studentInfo.address,
                 });
 
                 if (response.data.statusCode == 200) {

@@ -493,7 +493,9 @@ export default {
 
                 // 5 minute warning
                 if (this.remainingTime === 300 && !this.warningShown) {
-                    this.showWarning('পরীক্ষা শেষ হতে ৫ মিনিট বাকি!');
+                    console.error('পরীক্ষা শেষ হতে ৫ মিনিট বাকি!');
+                    // this.showWarning('পরীক্ষা শেষ হতে ৫ মিনিট বাকি!');
+                    window.s_alert('পরীক্ষা শেষ হতে ৫ মিনিট বাকি!', 'warning');
                     this.warningShown = true;
                 }
 
@@ -986,8 +988,8 @@ export default {
 
         async finishExam() {
             const confirmed = await window.s_confirm(
-                'আপনি কি নিশ্চিত যে পরীক্ষা শেষ করতে চান?',
-                'হ্যাঁ, শেষ করুন',
+                'আপনি কি উত্তরপত্র জমা দিতে চান?',
+                'হ্যাঁ, জমা দিন',
                 'question'
             );
 

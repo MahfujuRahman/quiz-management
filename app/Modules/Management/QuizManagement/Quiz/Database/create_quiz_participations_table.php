@@ -22,6 +22,10 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone')->nullable();
             $table->string('organization')->nullable();
+            $table->string('class')->nullable();
+            $table->string('group_class')->nullable();
+            $table->string('thana')->nullable();
+            $table->string('address')->nullable();
 
             // Quiz Attempt Details
             $table->json('answers')->nullable(); // Stores question_id => answer_option_id(s)
